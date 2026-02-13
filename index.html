@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>睿晨能量進化研究所 9.0</title>
+    <style>
+        :root {
+            --primary: #4CAF50; --secondary: #2196F3; --accent: #FFC107; --danger: #FF5252;
+            --dark: #2c3e50; --shadow: 0 8px 25px rgba(0,0,0,0.1);
+            --hud-bg: rgba(255, 255, 255, 0.9);
+        }
+        
+        body {
+            font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+            margin: 0; padding: 0;
+            color: var(--dark);
+            padding-bottom: 180px; /* 底部空間加大 */
+            /* 動態漸層背景 */
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            min-height: 100vh;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+
+        /* 標題與金句 */
+        .header-section { text-align: center; margin-bottom: 25px; }
+
+        .app-title {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #fff; /* 改為白色以突顯於背景 */
+            margin: 15px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            letter-spacing: 1px;
+        }
+
+        .daily-quote-box {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 20px 15px;
+            text-align: center;
+            position: relative;
+            margin-bottom: 25px;
+            box-shadow: var(--shadow);
+            border: none;
+            /* 微微浮動動畫 */
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-5px); } 100% { transform: translateY(0px); } }
+
+        .daily-quote-box::before { 
+            content: '💬 每日補給站'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); 
+            background: #ffeb3b; padding: 2px 12px; color: #d35400; border-radius: 20px;
+            font-weight: bold; font-size: 0.85rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .quote-cn { color: #2d3436; font-weight: bold; font-size: 1.05rem; margin-bottom: 6px; line-height: 1.4; }
+        .quote-en { color: #0984e3; font-weight: 600; font-size: 0.9rem; font-family: 'Comic Sans MS', sans-serif; }
+
+        /* 卡片進場動畫 */
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.9) translateY(20px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .card { 
+            background: rgba(255, 255, 255, 0.95); 
+            border-radius: 24px; 
+            padding: 18px; 
+            margin-bottom: 18px; 
+            box-shadow: var(--shadow); 
+            border-left: 8px solid #ccc; 
+            transition: transform 0.2s; 
+            opacity: 0; /* 預設隱藏，由動畫顯示 */
+            animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        
+        /* 讓卡片一張張出現 */
+        .card:nth-child(1) { animation-delay: 0.1s; border-left-color: var(--primary); }
+        .card:nth-child(2) { animation-delay: 0.2s; border-left-color: var(--secondary); }
+        .card:nth-child(3) { animation-delay: 0.3s; border-left-color: var(--danger); }
+        .card:nth-child(4) { animation-delay: 0.4s; border-left-color: #9C27B0; background: #fdf5ff; }
+        .card:nth-child(5) { animation-delay: 0.5s; border-left-color: var(--accent); background: #fffdf0; }
+
+        .card-header { font-size: 1.2rem; font-weight: 800; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; color: #444; }
+        .points-tag { font-size: 0.8rem; background: #e0e0e0; padding: 4px 10px; border-radius: 12px; color: #555; font-weight: bold; }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 12px; }
+
+        /* 按鈕美化 - 糖果質感 */
+        .btn {
+            background: #f8f9fa; 
+            border: none; 
+            border-radius: 16px; 
+            padding: 15px 5px;
+            font-size: 0.95rem; font-weight: 700; color: #636e72; 
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); /* 彈跳效果 */
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            height: 100%; min-height: 80px;
+            box-shadow: 0 4px 0 #dfe6e9; /* 立體感底部 */
+            position: relative; top: 0;
+        }
+        .btn span { font-size: 1.6rem; margin-bottom: 6px; }
+        
+        .btn:active { top: 4px; box-shadow: 0 0 0 #dfe6e9; } /* 按下時下沉 */
+
+        .btn.active { 
+            background: #e8f5e9; 
+            color: var(--primary); 
+            box-shadow: 0 4px 0 #a5d6a7; /* 綠色立體底 */
+            border: 2px solid var(--primary);
+            top: 0; /* 保持彈起狀態但變色 */
+        }
+        .btn.active:active { top: 4px; box-shadow: 0 0 0; }
+
+        /* 天氣圖示動畫 */
+        .weather-row {
+            display: flex; justify-content: space-around;
+            background: #fff; border: 2px solid #eee;
+            padding: 15px 10px; border-radius: 20px; margin-bottom: 15px;
+        }
+        .w-icon {
+            font-size: 2.8rem; cursor: pointer; opacity: 0.5; filter: grayscale(80%);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            -webkit-tap-highlight-color: transparent;
+        }
+        .w-icon:hover { transform: scale(1.1); opacity: 0.8; }
+        .w-icon.selected {
+            opacity: 1; filter: grayscale(0%);
+            transform: scale(1.3) translateY(-5px); /* 選中時跳起來 */
+            text-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        /* 煞車按鈕 */
+        .brake-btn {
+            width: 100%; text-align: left; padding: 16px; margin-bottom: 10px; border-radius: 16px;
+            border: none; background: #fff; font-weight: bold; color: #555; cursor: pointer; display: flex; align-items: center;
+            box-shadow: 0 3px 0 #eee; border: 1px solid #eee; transition: 0.2s;
+        }
+        .brake-btn:active { transform: translateY(3px); box-shadow: none; }
+        .brake-btn .icon { margin-right: 12px; font-size: 1.4rem; }
+        .brake-btn .desc { font-size: 0.85rem; color: #999; font-weight: normal; margin-left: auto; }
+        
+        .brake-btn.active { border: 2px solid var(--primary); background: #e8f5e9; color: var(--primary); box-shadow: 0 3px 0 #a5d6a7; }
+        .brake-btn.active.fail { border-color: #e67e22; background: #fdf2e9; color: #d35400; box-shadow: 0 3px 0 #f5c6cb; }
+
+        /* 開關 */
+        .honesty-toggle { display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 5px; }
+        .switch { position: relative; display: inline-block; width: 50px; height: 28px; margin-right: 10px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        input:checked + .slider { background-color: #9C27B0; }
+        input:checked + .slider:before { transform: translateX(22px); }
+
+        /* 輸入框 */
+        .input-group { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; background: white; padding: 10px 15px; border-radius: 12px; border: 1px solid #eee; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
+        .input-group label { font-size: 0.95rem; font-weight: bold; color: #555; display: flex; align-items: center; }
+        input[type="number"] { width: 70px; padding: 8px; border: 2px solid #ddd; border-radius: 10px; text-align: center; font-size: 1.2rem; font-weight: bold; color: var(--secondary); outline: none; transition: 0.3s; }
+        input[type="number"]:focus { border-color: var(--secondary); box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2); }
+
+        .submit-btn {
+            width: 100%; background: linear-gradient(45deg, #FF512F, #DD2476); color: white; border: none; padding: 20px; border-radius: 20px;
+            font-size: 1.4rem; font-weight: 800; cursor: pointer; box-shadow: 0 10px 20px rgba(221, 36, 118, 0.3); margin-top: 15px;
+            transition: transform 0.2s;
+        }
+        .submit-btn:active { transform: scale(0.95); }
+        
+        /* 底部提醒語 */
+        .footer-note {
+            text-align: center; margin-top: 25px; padding: 20px;
+            background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(5px);
+            border-radius: 15px; color: #444; font-size: 0.9rem; line-height: 1.6;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); font-weight: 600;
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+        .footer-note .icon { font-size: 1.4rem; display: block; margin-bottom: 8px; animation: heartbeat 1.5s infinite; }
+        @keyframes heartbeat { 0% { transform: scale(1); } 25% { transform: scale(1.2); } 50% { transform: scale(1); } 75% { transform: scale(1.2); } 100% { transform: scale(1); } }
+
+        /* 底部 HUD */
+        .floating-hud {
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 100px;
+            background: var(--hud-bg); backdrop-filter: blur(15px);
+            border-top: 1px solid rgba(255,255,255,0.8); box-shadow: 0 -10px 30px rgba(0,0,0,0.1);
+            display: flex; align-items: center; justify-content: space-between; padding: 0 25px; box-sizing: border-box; z-index: 1000;
+            padding-bottom: env(safe-area-inset-bottom);
+            border-radius: 30px 30px 0 0; /* 圓角頂部 */
+        }
+        .hud-pokemon { position: relative; width: 90px; height: 90px; margin-top: -40px; }
+        .hud-pokemon img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.2)); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .hud-pokemon img:active { transform: scale(1.2) rotate(10deg); }
+        
+        .hud-info { flex: 1; padding: 0 20px; display: flex; flex-direction: column; justify-content: center; }
+        .hud-stage-name { font-size: 0.9rem; font-weight: bold; color: var(--dark); margin-bottom: 6px; }
+        
+        /* 能量條動畫 (斜紋) */
+        .hud-progress-bg { width: 100%; height: 14px; background: #e0e0e0; border-radius: 10px; overflow: hidden; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); }
+        .hud-progress-bar { 
+            height: 100%; width: 0%; 
+            background: linear-gradient(45deg, #FDC830 25%, #F37335 25%, #F37335 50%, #FDC830 50%, #FDC830 75%, #F37335 75%, #F37335 100%);
+            background-size: 20px 20px;
+            transition: width 0.5s ease; 
+            animation: barberpole 1s linear infinite;
+        }
+        @keyframes barberpole { from { background-position: 0 0; } to { background-position: 20px 20px; } }
+
+        .hud-score { text-align: right; min-width: 80px; }
+        .hud-score-num { font-size: 2.2rem; font-weight: 900; color: var(--secondary); line-height: 1; text-shadow: 1px 1px 0px #fff; }
+        .hud-score-label { font-size: 0.75rem; color: #888; font-weight: bold; margin-top: 2px; }
+
+        /* 特效 CSS 區 (沿用 7.7) */
+        @keyframes evolve-flash { 0% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(1.4) rotate(360deg); filter: brightness(2) drop-shadow(0 0 20px gold); } 100% { transform: scale(1); filter: brightness(1); } }
+        .evolving img { animation: evolve-flash 1.2s ease-out; }
+        @keyframes shake-pulse { 0% { transform: scale(1) rotate(0deg); } 25% { transform: scale(1.1) rotate(-3deg); } 50% { transform: scale(1) rotate(3deg); } 75% { transform: scale(1.1) rotate(-3deg); } 100% { transform: scale(1) rotate(0deg); } }
+        
+        .lightning-container { position: absolute; top: 50%; left: 50%; width: 100%; height: 100%; transform: translate(-50%, -50%); pointer-events: none; opacity: 0; z-index: 10; }
+        .lightning-bolt { position: absolute; top: 50%; left: 50%; width: 120px; height: 35px; clip-path: polygon(0% 45%, 15% 10%, 25% 45%, 40% 15%, 60% 50%, 80% 20%, 100% 50%, 80% 80%, 60% 50%, 40% 85%, 25% 55%, 15% 90%, 0% 55%); background: linear-gradient(90deg, #fff 10%, #ffeb3b 50%, #ff9800 100%); transform-origin: center left; opacity: 0; filter: drop-shadow(0 0 8px rgba(255, 235, 59, 0.8)); }
+        .bolt-1 { transform: translate(-50%, -50%) rotate(-135deg); } .bolt-2 { transform: translate(-50%, -50%) rotate(-45deg); } .bolt-3 { transform: translate(-50%, -50%) rotate(135deg); } .bolt-4 { transform: translate(-50%, -50%) rotate(45deg); }
+        @keyframes shoot-beam { 0% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--rot)) scaleX(0.1); } 10% { opacity: 1; } 40% { opacity: 1; transform: translate(-50%, -50%) rotate(var(--rot)) translate(60px, 0) scaleX(1.3); } 100% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--rot)) translate(90px, 0) scaleX(1.6); } }
+        
+        .lightning-mode img { animation: shake-pulse 0.3s infinite; filter: drop-shadow(0 0 15px #ffeb3b); }
+        .lightning-mode .lightning-container { opacity: 1; }
+        .lightning-mode .bolt-1 { --rot: -135deg; animation: shoot-beam 0.6s infinite; }
+        .lightning-mode .bolt-2 { --rot: -45deg; animation: shoot-beam 0.6s infinite 0.15s; }
+        .lightning-mode .bolt-3 { --rot: 135deg; animation: shoot-beam 0.6s infinite 0.3s; }
+        .lightning-mode .bolt-4 { --rot: 45deg; animation: shoot-beam 0.6s infinite 0.45s; }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header-section">
+            <div class="app-title">⚡ 睿晨能量進化研究所</div>
+            <div class="daily-quote-box">
+                <div class="quote-cn" id="quote-cn">載入今日智慧...</div>
+                <div class="quote-en" id="quote-en">Loading...</div>
+            </div>
+        </div>
+
+        <div class="content-area">
+            
+            <div class="card">
+                <div class="card-header">
+                    <span>🌿 棲息地日常</span>
+                    <span class="points-tag">+5 EP</span>
+                </div>
+                <div class="grid">
+                    <button class="btn" onclick="toggleBtn(this, 5)"><span>💤</span>午休充能</button>
+                    <button class="btn" onclick="toggleBtn(this, 5)"><span>🛡️</span>身體守護</button>
+                    <button class="btn" onclick="toggleBtn(this, 5)"><span>💪</span>體能訓練</button>
+                    <button class="btn" onclick="toggleBtn(this, 5)"><span>🌍</span>英語進化</button>
+                    <button class="btn" onclick="toggleBtn(this, 5)"><span>🎹</span>鋼琴演奏</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span>📖 學科進化力</span>
+                    <span class="points-tag">+5 EP</span>
+                </div>
+                <div class="grid">
+                    <button class="btn" onclick="toggleBtn(this, 5)"><span>🌟</span>亮眼科目</button>
+                    <button class="btn" onclick="toggleBtn(this, 5)"><span>📝</span>作業日誌</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span>🧠 情緒氣象與煞車</span>
+                    <span class="points-tag">核心獎勵</span>
+                </div>
+                <div class="weather-row">
+                    <div class="w-icon" onclick="selectWeather(this)">☀️</div>
+                    <div class="w-icon" onclick="selectWeather(this)">☁️</div>
+                    <div class="w-icon" onclick="selectWeather(this)">⛈️</div>
+                    <div class="w-icon" onclick="selectWeather(this)">❄️</div>
+                    <div class="w-icon" onclick="selectWeather(this)">🌋</div>
+                </div>
+                <div class="brake-group">
+                    <button class="brake-btn" onclick="selectBrake(this, 15, '')">
+                        <span class="icon">🛑</span> 完美煞車 <span class="desc">+15 EP</span>
+                    </button>
+                    <button class="brake-btn" onclick="selectBrake(this, 10, 'warn')">
+                        <span class="icon">⚠️</span> 緩慢減速 <span class="desc">+10 EP</span>
+                    </button>
+                    <button class="brake-btn" onclick="selectBrake(this, 0, 'fail')">
+                        <span class="icon">🏎️</span> 煞車失靈 <span class="desc" style="color:#d35400;">分享狀況可+2 EP</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header" style="color:#6a1b9a;">
+                    <span style="display:flex; align-items:center;">💡 誠實偵探加成</span>
+                    <span class="points-tag" style="background:#f3e5f5; color:#6a1b9a;">+2 EP</span>
+                </div>
+                <label class="honesty-toggle">
+                    <div style="font-weight:bold; color:#555; font-size:0.9rem;">表現不佳但願意誠實分享</div>
+                    <div class="switch">
+                        <input type="checkbox" id="honesty-check" onchange="calc()">
+                        <span class="slider"></span>
+                    </div>
+                </label>
+            </div>
+
+            <div class="card">
+                <div class="card-header" style="color:#f57f17;">
+                    <span>🏆 榮譽里程碑</span>
+                    <span class="points-tag" style="background:#fffde7; color:#f57f17;">大獎區</span>
+                </div>
+                <div class="input-group">
+                    <label><span>🔬</span>&nbsp;科學家發現 (1-10)</label>
+                    <input type="number" id="m1" placeholder="0" oninput="calc()">
+                </div>
+                <div class="input-group">
+                    <label><span>⚔️</span>&nbsp;挑戰賽解鎖 (10-50)</label>
+                    <input type="number" id="m2" placeholder="0" oninput="calc()">
+                </div>
+                <div class="input-group">
+                    <label><span>💎</span>&nbsp;段考大躍進 (50-100)</label>
+                    <input type="number" id="m3" placeholder="0" oninput="calc()">
+                </div>
+                <div class="input-group">
+                    <label><span>🏅</span>&nbsp;學期榮譽殿堂 (100-200)</label>
+                    <input type="number" id="m4" placeholder="0" oninput="calc()">
+                </div>
+            </div>
+
+            <button class="submit-btn" onclick="finish()">
+                傳送進化數據 🚀
+            </button>
+            
+            <div class="footer-note">
+                <span class="icon">💖</span>
+                <span id="parent-note">載入給爸媽的提醒...</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="floating-hud">
+        <div class="hud-pokemon">
+            <div class="lightning-container">
+                <div class="lightning-bolt bolt-1"></div>
+                <div class="lightning-bolt bolt-2"></div>
+                <div class="lightning-bolt bolt-3"></div>
+                <div class="lightning-bolt bolt-4"></div>
+            </div>
+            <img id="pk-img" src="https://assets.pokemon.com/assets/cms2/img/pokedex/full/172.png" alt="Pokemon">
+        </div>
+        <div class="hud-info">
+            <div class="hud-stage-name" id="stage-name">Lv.1 皮丘</div>
+            <div class="hud-progress-bg">
+                <div class="hud-progress-bar" id="hp-fill"></div>
+            </div>
+        </div>
+        <div class="hud-score">
+            <div class="hud-score-num" id="total-ep">0</div>
+            <div class="hud-score-label">EP 能量</div>
+        </div>
+    </div>
+
+    <script>
+        let taskPoints = 0;
+        let brakePoints = 0;
+        let lastStageIndex = 0;
+        
+        const stages = [
+            { ep: 0, name: "Lv.1 皮丘", img: "https://assets.pokemon.com/assets/cms2/img/pokedex/full/172.png" },
+            { ep: 21, name: "Lv.16 皮卡丘", img: "https://assets.pokemon.com/assets/cms2/img/pokedex/full/025.png" },
+            { ep: 41, name: "Lv.32 雷丘", img: "https://assets.pokemon.com/assets/cms2/img/pokedex/full/026.png" }
+        ];
+
+        const bilingualQuotes = [
+            { cn: "毛毛蟲要變成蝴蝶，需要耐心的等待。", en: "Patience helps me grow like a butterfly." },
+            { cn: "犯錯沒關係，那只是我們還沒找到答案的線索！", en: "Mistakes are just clues to the answer." },
+            { cn: "即使是大樹，也是從一顆小種子開始長大的。", en: "Big trees start from small seeds." },
+            { cn: "皮卡丘也是透過一次次戰鬥才變強的喔！", en: "Practice makes me stronger every day." },
+            { cn: "像恐龍一樣強壯，也要像偵探一樣細心。", en: "Be strong and be curious." },
+            { cn: "深呼吸，就像是給大腦踩一下煞車。", en: "Take a deep breath to calm down." },
+            { cn: "每一次的嘗試，都是為了進化做準備。", en: "Trying new things helps me evolve." },
+            { cn: "勇敢不是不害怕，而是害怕了還願意去嘗試。", en: "Being brave means trying even when scared." },
+            { cn: "觀察一隻小蟲子，也能發現大世界的祕密。", en: "Look closely, nature is full of secrets." },
+            { cn: "今天的努力，會變成明天的超能力！", en: "My effort today is my superpower tomorrow." },
+            { cn: "誠實面對自己，比考 100 分更帥氣。", en: "Being honest is better than being perfect." },
+            { cn: "你的大腦就像肌肉，越用會越強壯喔！", en: "My brain gets stronger when I think hard." },
+            { cn: "慢慢來沒關係，烏龜最後也爬到了終點。", en: "Slow and steady wins the race." },
+            { cn: "你的創意是全世界獨一無二的寶藏。", en: "My ideas are special and unique." },
+            { cn: "練習雖然有點無聊，但成果會像音樂一樣好聽。", en: "Practice creates beautiful results." },
+            { cn: "失敗了？沒關係，那是發現了「行不通的方法」。", en: "Failure is just part of learning." },
+            { cn: "大偵探睿晨，今天發現了什麼新線索嗎？", en: "Stay curious like a detective today!" },
+            { cn: "雨過天晴後的彩虹最美麗，心情也是一樣。", en: "Rainbows come after the rain." },
+            { cn: "團結力量大，就像螞蟻搬家一樣。", en: "Teamwork makes us stronger." },
+            { cn: "休息是為了走更長遠的路，別忘了充電。", en: "Resting gives me power to go further." },
+            { cn: "科學家最強的武器是「好奇心」。", en: "Curiosity is a scientist's best tool." },
+            { cn: "爸媽永遠是你最強的後盾隊友。", en: "My family is my best team." },
+            { cn: "心情不好就像烏雲，等一下太陽就會出來了。", en: "Bad moods pass like clouds." },
+            { cn: "寫下來，能讓你的觀察更清楚。", en: "Writing helps me think clearly." },
+            { cn: "保護自己，就像獅子保護領地一樣重要。", en: "I can protect myself like a lion." },
+            { cn: "像水一樣，遇到石頭轉個彎繼續流動。", en: "Be flexible like water." },
+            { cn: "解決問題的方法，通常藏在細節裡。", en: "Answers are hidden in the details." },
+            { cn: "換個角度看世界，會有不一樣的發現喔！", en: "Look at the world in a new way." },
+            { cn: "最棒的競爭對手，是昨天的自己。", en: "I am better than I was yesterday." },
+            { cn: "每一步腳印，都代表你正在往前進。", en: "Every step is progress." }
+        ];
+
+        const parentingQuotes = [
+            "分數只是開啟對話的鑰匙，陪伴與傾聽才是真正的獎勵。",
+            "看見努力的過程，比完美的結果更重要。我們是親密隊友！",
+            "擁抱他的進步，也接納他的卡關。誠實面對就是最強的進化。",
+            "看見過程・肯定努力・接納情緒・享受進化",
+            "請記得：先連結感情，再糾正行為。愛是進化的最大動力。"
+        ];
+
+        function getDailyContent() {
+            const today = new Date().toDateString();
+            let hash = 0;
+            for (let i = 0; i < today.length; i++) {
+                hash = today.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            hash = Math.abs(hash);
+            
+            const qIndex = hash % bilingualQuotes.length;
+            document.getElementById('quote-cn').innerText = bilingualQuotes[qIndex].cn;
+            document.getElementById('quote-en').innerText = bilingualQuotes[qIndex].en;
+
+            const pIndex = hash % parentingQuotes.length;
+            document.getElementById('parent-note').innerText = parentingQuotes[pIndex];
+        }
+        getDailyContent();
+
+        function toggleBtn(btn, pts) {
+            btn.classList.toggle('active');
+            if (btn.classList.contains('active')) taskPoints += pts;
+            else taskPoints -= pts;
+            calc();
+        }
+
+        function selectWeather(btn) {
+            document.querySelectorAll('.w-icon').forEach(i => i.classList.remove('selected'));
+            btn.classList.add('selected');
+        }
+
+        function selectBrake(btn, pts, styleClass) {
+            document.querySelectorAll('.brake-btn').forEach(b => b.className = 'brake-btn'); 
+            btn.classList.add('active');
+            if (styleClass) btn.classList.add(styleClass);
+            brakePoints = pts;
+            calc();
+        }
+
+        function calc() {
+            let m1 = parseInt(document.getElementById('m1').value) || 0;
+            let m2 = parseInt(document.getElementById('m2').value) || 0;
+            let m3 = parseInt(document.getElementById('m3').value) || 0;
+            let m4 = parseInt(document.getElementById('m4').value) || 0;
+            let honesty = document.getElementById('honesty-check').checked ? 2 : 0;
+            
+            let total = taskPoints + brakePoints + m1 + m2 + m3 + m4 + honesty;
+            
+            document.getElementById('total-ep').innerText = total;
+            
+            let percentage = Math.min((total / 60) * 100, 100);
+            document.getElementById('hp-fill').style.width = percentage + '%';
+            
+            let currentStageIndex = 0;
+            if (total >= 41) currentStageIndex = 2;
+            else if (total >= 21) currentStageIndex = 1;
+            
+            if (currentStageIndex > lastStageIndex) {
+                triggerEvolution();
+            }
+            lastStageIndex = currentStageIndex;
+            
+            let stage = stages[currentStageIndex];
+            document.getElementById('stage-name').innerText = stage.name;
+            let imgEl = document.getElementById('pk-img');
+            if (imgEl.src !== stage.img) {
+                imgEl.src = stage.img;
+            }
+
+            const hudPokemon = document.querySelector('.hud-pokemon');
+            if (total >= 60) {
+                hudPokemon.classList.add('lightning-mode');
+            } else {
+                hudPokemon.classList.remove('lightning-mode');
+            }
+        }
+
+        function triggerEvolution() {
+            const imgEl = document.querySelector('.hud-pokemon');
+            imgEl.classList.remove('evolving');
+            void imgEl.offsetWidth; 
+            imgEl.classList.add('evolving');
+        }
+
+        function finish() {
+            let t = document.getElementById('total-ep').innerText;
+            alert("🎉 進化數據傳送成功！\n\n睿晨今天獲得了 " + t + " EP\n可兌換：" + t + " 分鐘 HAPPY 時間\n或 " + t + " 元 購物金");
+            location.reload(); 
+        }
+    </script>
+</body>
+</html>
