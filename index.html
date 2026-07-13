@@ -3,512 +3,1396 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>睿晨能量進化研究所 9.0</title>
+    <title>假日實驗室 v16.13 - 敏捷導航版 (行動聚合)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;700&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #4CAF50; --secondary: #2196F3; --accent: #FFC107; --danger: #FF5252;
-            --dark: #2c3e50; --shadow: 0 8px 25px rgba(0,0,0,0.1);
-            --hud-bg: rgba(255, 255, 255, 0.9);
-        }
-        
-        body {
-            font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
-            margin: 0; padding: 0;
-            color: var(--dark);
-            padding-bottom: 180px; /* 底部空間加大 */
-            /* 動態漸層背景 */
-            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
-            min-height: 100vh;
+            --primary: #2d3436; 
+            --morning-bg: #ffeaa7; --morning-text: #d35400;
+            --afternoon-bg: #74b9ff; --afternoon-text: #0984e3; 
+            --evening-bg: #a29bfe; --evening-text: #6c5ce7;
+            --accent: #00cec9; --success: #00b894; --warning: #fab1a0;
+            --ep-color: #f1c40f; --bg-pattern: #f8fafc;
         }
 
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        body { 
+            font-family: 'Urbanist', 'Noto Sans TC', sans-serif; 
+            background-color: var(--bg-pattern); 
+            margin: 0; padding: 0; color: var(--primary); 
+            user-select: none;
+            height: 100dvh;
+            overflow: hidden;
         }
 
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-
-        /* 標題與金句 */
-        .header-section { text-align: center; margin-bottom: 25px; }
-
-        .app-title {
-            font-size: 1.8rem;
-            font-weight: 900;
-            color: #fff; /* 改為白色以突顯於背景 */
-            margin: 15px 0;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-            letter-spacing: 1px;
+        .tab-nav { 
+            position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; box-sizing: border-box;
+            height: 60px;
+            display: flex; gap: 8px; justify-content: center; align-items: center;
+            padding: 0 10px; background: rgba(255, 255, 255, 0.88); 
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+            overflow-x: auto; white-space: nowrap;
         }
 
-        .daily-quote-box {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 20px 15px;
-            text-align: center;
-            position: relative;
+        .ep-nav-item {
+            display: flex; align-items: center; gap: 6px; background: #fff3cd;
+            padding: 6px 14px; border-radius: 50px; border: 1px solid #ffeaa7;
+        }
+
+        .ep-nav-score { font-size: 1.15rem; font-weight: 900; color: #d35400; }
+
+        .tab-btn { 
+            padding: 8px 18px; border-radius: 50px; font-weight: 700; 
+            font-size: 1.05rem; cursor: pointer; border: 2px solid transparent; 
+            background: #f1f2f6; color: #636e72; transition: all 0.3s ease;
+        }
+
+        .tab-btn.active { 
+            background: var(--accent); color: white; 
+            box-shadow: 0 6px 15px rgba(0,206,201,0.25); transform: translateY(-1px);
+        }
+
+        .main-wrapper { 
+            max-width: 950px; 
+            margin: 60px auto 0; 
+            padding: 20px 15px 20px 15px; 
+            height: calc(100dvh - 60px);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            box-sizing: border-box;
+        }
+
+        .container { 
+            background: rgba(255, 255, 255, 0.98); 
+            padding: 25px; border-radius: 25px; 
+            box-shadow: 0 15px 40px rgba(0,0,0,0.04); border: 1px solid #fff;
             margin-bottom: 25px;
-            box-shadow: var(--shadow);
-            border: none;
-            /* 微微浮動動畫 */
-            animation: float 6s ease-in-out infinite;
         }
-        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-5px); } 100% { transform: translateY(0px); } }
 
-        .daily-quote-box::before { 
-            content: '💬 每日補給站'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); 
-            background: #ffeb3b; padding: 2px 12px; color: #d35400; border-radius: 20px;
-            font-weight: bold; font-size: 0.85rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        .quote-box { 
+            min-height: 45px; text-align: center; color: var(--success); 
+            font-weight: 700; font-size: 1.1rem; margin-bottom: 15px;
+            white-space: pre-line;
+        }
+
+        .date-navigator { 
+            display: flex; justify-content: space-between; align-items: center; 
+            background: #fdfdfd; padding: 12px 20px; border-radius: 20px; 
+            border: 2px solid #f1f2f6; margin-bottom: 20px;
+        }
+
+        .current-date-title { font-size: 1.35rem; font-weight: 900; color: #0984e3; margin: 0; }
+        
+        .time-config { display: flex; gap: 12px; margin-bottom: 20px; justify-content: center; flex-wrap: wrap; }
+        .time-capsule { 
+            display: flex; align-items: center; gap: 8px;
+            padding: 8px 16px; border-radius: 50px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02); font-weight: bold; font-size: 0.95rem;
+        }
+        .time-inputs-row { display: flex; align-items: center; gap: 3px; }
+        .time-capsule input { width: 45px; border: none; text-align: center; background: rgba(255,255,255,0.5); border-radius: 5px; font-weight: bold; padding: 2px; font-size: 0.95rem; }
+
+        .monitor-panel { margin-bottom: 25px; }
+        .total-time-text { text-align: center; margin-bottom: 5px; font-weight: bold; color: #636e72; font-size: 0.9rem; }
+        .bar-container { 
+            height: 40px; background: #dfe6e9; border-radius: 20px; 
+            overflow: hidden; display: flex; position: relative; border: 4px solid #fff; box-shadow: 0 6px 15px rgba(0,0,0,0.05); 
+        }
+        .bar-tasks { height: 100%; background: linear-gradient(135deg, #74b9ff, #0984e3); width: 0%; transition: 0.6s; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.9rem; font-weight: bold; overflow: hidden; white-space: nowrap; }
+        .bar-free { height: 100%; background: linear-gradient(135deg, #55efc4, #00b894); width: 100%; transition: 0.6s; display: flex; align-items: center; justify-content: center; color: #2d3436; font-weight: bold; font-size: 0.9rem; overflow: hidden; white-space: nowrap; }
+        
+        .period-section { margin-bottom: 20px; border-radius: 20px; padding: 15px 15px 5px 15px; }
+        .section-1 { background: linear-gradient(to bottom right, #fffdf2, #fff9e6); border: 2px dashed #ffeaa7; }
+        .section-2 { background: linear-gradient(to bottom right, #f4fbff, #e9f5ff); border: 2px dashed #74b9ff; }
+        .section-3 { background: linear-gradient(to bottom right, #f8f7ff, #f1f0ff); border: 2px dashed #a29bfe; }
+        .section-title-period { font-size: 1.1rem; font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+        .period-rem { font-size: 0.85rem; padding: 4px 10px; border-radius: 12px; font-weight: bold; }
+
+        .grid-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; }
+        .list-item { 
+            display: flex; align-items: center; gap: 8px; padding: 10px 12px; 
+            background: #fff; border-radius: 12px; border-left: 6px solid #b2bec3; 
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02); flex-wrap: wrap;
         }
         
-        .quote-cn { color: #2d3436; font-weight: bold; font-size: 1.05rem; margin-bottom: 6px; line-height: 1.4; }
-        .quote-en { color: #0984e3; font-weight: 600; font-size: 0.9rem; font-family: 'Comic Sans MS', sans-serif; }
-
-        /* 卡片進場動畫 */
-        @keyframes popIn {
-            0% { opacity: 0; transform: scale(0.9) translateY(20px); }
-            100% { opacity: 1; transform: scale(1) translateY(0); }
+        .list-item.completed { opacity: 0.5; filter: grayscale(0.6); }
+        .list-item.completed input[type="text"], 
+        .list-item.completed input[type="number"], 
+        .list-item.completed select,
+        .list-item.completed textarea { 
+            text-decoration: line-through; color: #b2bec3; pointer-events: none; 
         }
 
-        .card { 
-            background: rgba(255, 255, 255, 0.95); 
-            border-radius: 24px; 
-            padding: 18px; 
-            margin-bottom: 18px; 
-            box-shadow: var(--shadow); 
-            border-left: 8px solid #ccc; 
-            transition: transform 0.2s; 
-            opacity: 0; /* 預設隱藏，由動畫顯示 */
-            animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        .list-item.completed .check-box,
+        .list-item.completed .ex-check-box { 
+            pointer-events: auto !important; 
         }
+
+        .check-box { width: 22px; height: 22px; cursor: pointer; flex-shrink: 0; accent-color: #00b894; }
+        .type-select { width: 68px; background: #f8f9fa; flex-shrink: 0; }
+        .name-select { width: 70px; flex-shrink: 0; }
+        .progress-field { flex: 3; min-width: 110px; } 
+        .task-stage-input { flex: 2; min-width: 90px; border-color: #ffeaa7; } 
+        .task-time-input { width: 40px; text-align: center; color: #d63031; flex-shrink: 0; }
+        .period-select { width: 65px; background: #f1f2f6; color: #636e72; flex-shrink: 0; padding: 6px 4px; }
+        .btn-del { background: #ff7675; color: white; border: none; border-radius: 8px; width: 30px; height: 30px; cursor: pointer; font-weight: bold; flex-shrink: 0; transition: 0.2s; }
+        .btn-del:active { transform: scale(0.9); }
+
+        .proj-container { display: none; align-items: center; gap: 3px; flex: 2; min-width: 90px; }
+        .proj-val-input { flex: 1; padding: 6px; border: 1px solid #00cec9; border-radius: 8px; font-weight: bold; color:#0984e3; text-align: center; min-width: 50px; }
+
+        @media (max-width: 768px) {
+    .list-item { flex-wrap: wrap; padding: 12px; gap: 8px; }
+    .name-select { flex-grow: 1; width: auto; }
+    .progress-field { flex-basis: 100%; order: 3; margin-top: 2px; }
+    .task-stage-input { flex: 1; order: 4; }
+    .proj-container { flex: 1; order: 5; }
+    .task-time-input { order: 6; }
+    .period-select { order: 7; }
+    .btn-del { order: 8; }
+    
+    .tab-btn { padding: 6px 10px; font-size: 0.95rem; }
+    .ep-nav-item { padding: 4px 10px; }
+    .ep-nav-score { font-size: 1rem; }
+    .tab-nav { gap: 4px; padding: 0 4px; justify-content: flex-start; }
+    
+    .settings-list li { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .settings-list li > div:first-child { white-space: normal; flex-wrap: wrap; width: 100%; }
+    .settings-list li > div:last-child { width: 100%; justify-content: flex-end; }
+    #project-list li > div:first-child { flex-direction: column; align-items: flex-start !important; gap: 8px; }
+    #project-list li > div:first-child > div:last-child { width: 100%; justify-content: flex-end; }
+}
+
+        .ex-check-box { width: 22px; height: 22px; cursor: pointer; flex-shrink: 0; accent-color: #e17055; }
+        .ex-cost { width: 55px; text-align: center; font-size: 0.85rem !important; padding: 6px 4px !important; }
+
+        .calendar-month-block { background: #fff; border: 2px solid #dfe6e9; border-radius: 15px; padding: 15px; margin-bottom: 20px; }
+        .calendar-month-title { font-size: 1.2rem; color: #2d3436; border-bottom: 2px dashed #b2bec3; padding-bottom: 10px; margin-top: 0; margin-bottom: 15px; font-weight: bold; text-align: center; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+        .cal-header { text-align: center; font-weight: bold; color: #636e72; font-size: 0.9rem; padding-bottom: 5px; }
+        .cal-day { border: 2px solid #f1f2f6; border-radius: 10px; padding: 10px 5px; text-align: center; font-weight: bold; cursor: pointer; transition: 0.2s; min-height: 45px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #fff; }
+        .cal-day.empty { visibility: hidden; }
+        .cal-day:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .cal-day.status-none { background: #fff; color: #2d3436; }
+        .cal-day.status-planned { background: #e9f5ff; border-color: #74b9ff; color: #0984e3; }
+        .cal-day.status-done { background: #e8f8f5; border-color: #00cec9; color: #00b894; }
+        .cal-day.active { box-shadow: 0 0 0 3px #fdcb6e; }
+
+        .project-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 15px; margin-top: 15px; }
+        .project-card { background: white; border-radius: 18px; padding: 15px; border: 1px solid #f1f2f6; border-left: 6px solid var(--afternoon-text); box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
+        .project-card.achieved { border-color: var(--success); animation: glow 2s infinite; }
+        @keyframes glow { 0%, 100% { box-shadow: 0 0 5px rgba(0,184,148,0.2); } 50% { box-shadow: 0 0 15px rgba(0,184,148,0.4); } }
         
-        /* 讓卡片一張張出現 */
-        .card:nth-child(1) { animation-delay: 0.1s; border-left-color: var(--primary); }
-        .card:nth-child(2) { animation-delay: 0.2s; border-left-color: var(--secondary); }
-        .card:nth-child(3) { animation-delay: 0.3s; border-left-color: var(--danger); }
-        .card:nth-child(4) { animation-delay: 0.4s; border-left-color: #9C27B0; background: #fdf5ff; }
-        .card:nth-child(5) { animation-delay: 0.5s; border-left-color: var(--accent); background: #fffdf0; }
+        .fame-card { background: linear-gradient(135deg, #fff9e6, #fff3cd); border: 2px solid #f1c40f; padding: 12px 20px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(241,196,15,0.1); }
+        .fame-title { color: #d35400; font-size: 1.15rem; font-weight: 900; margin: 0; }
 
-        .card-header { font-size: 1.2rem; font-weight: 800; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; color: #444; }
-        .points-tag { font-size: 0.8rem; background: #e0e0e0; padding: 4px 10px; border-radius: 12px; color: #555; font-weight: bold; }
-
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 12px; }
-
-        /* 按鈕美化 - 糖果質感 */
-        .btn {
-            background: #f8f9fa; 
-            border: none; 
-            border-radius: 16px; 
-            padding: 15px 5px;
-            font-size: 0.95rem; font-weight: 700; color: #636e72; 
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); /* 彈跳效果 */
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            height: 100%; min-height: 80px;
-            box-shadow: 0 4px 0 #dfe6e9; /* 立體感底部 */
-            position: relative; top: 0;
-        }
-        .btn span { font-size: 1.6rem; margin-bottom: 6px; }
+        input, select, textarea { border: 1px solid #dfe6e9; border-radius: 8px; padding: 6px 8px; font-family: inherit; font-size: 0.95rem; font-weight: bold; color: var(--primary); }
         
-        .btn:active { top: 4px; box-shadow: 0 0 0 #dfe6e9; } /* 按下時下沉 */
-
-        .btn.active { 
-            background: #e8f5e9; 
-            color: var(--primary); 
-            box-shadow: 0 4px 0 #a5d6a7; /* 綠色立體底 */
-            border: 2px solid var(--primary);
-            top: 0; /* 保持彈起狀態但變色 */
-        }
-        .btn.active:active { top: 4px; box-shadow: 0 0 0; }
-
-        /* 天氣圖示動畫 */
-        .weather-row {
-            display: flex; justify-content: space-around;
-            background: #fff; border: 2px solid #eee;
-            padding: 15px 10px; border-radius: 20px; margin-bottom: 15px;
-        }
-        .w-icon {
-            font-size: 2.8rem; cursor: pointer; opacity: 0.5; filter: grayscale(80%);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            -webkit-tap-highlight-color: transparent;
-        }
-        .w-icon:hover { transform: scale(1.1); opacity: 0.8; }
-        .w-icon.selected {
-            opacity: 1; filter: grayscale(0%);
-            transform: scale(1.3) translateY(-5px); /* 選中時跳起來 */
-            text-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-
-        /* 煞車按鈕 */
-        .brake-btn {
-            width: 100%; text-align: left; padding: 16px; margin-bottom: 10px; border-radius: 16px;
-            border: none; background: #fff; font-weight: bold; color: #555; cursor: pointer; display: flex; align-items: center;
-            box-shadow: 0 3px 0 #eee; border: 1px solid #eee; transition: 0.2s;
-        }
-        .brake-btn:active { transform: translateY(3px); box-shadow: none; }
-        .brake-btn .icon { margin-right: 12px; font-size: 1.4rem; }
-        .brake-btn .desc { font-size: 0.85rem; color: #999; font-weight: normal; margin-left: auto; }
+        .settings-date-range { background: #e9f5ff; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 2px solid #74b9ff; text-align: center; font-weight: bold; }
+        .settings-date-range input { padding: 6px; border-radius: 8px; border: 1px solid #dfe6e9; margin: 0 5px; }
+        .domain-setting-block { background: #fff; padding: 18px; border-radius: 12px; margin-bottom: 15px; border: 2px solid #dfe6e9; }
+        .domain-title { color: #0984e3; margin-top: 0; margin-bottom: 12px; border-bottom: 2px dashed #74b9ff; padding-bottom: 8px; font-size: 1.2rem; }
         
-        .brake-btn.active { border: 2px solid var(--primary); background: #e8f5e9; color: var(--primary); box-shadow: 0 3px 0 #a5d6a7; }
-        .brake-btn.active.fail { border-color: #e67e22; background: #fdf2e9; color: #d35400; box-shadow: 0 3px 0 #f5c6cb; }
-
-        /* 開關 */
-        .honesty-toggle { display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 5px; }
-        .switch { position: relative; display: inline-block; width: 50px; height: 28px; margin-right: 10px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        input:checked + .slider { background-color: #9C27B0; }
-        input:checked + .slider:before { transform: translateX(22px); }
-
-        /* 輸入框 */
-        .input-group { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; background: white; padding: 10px 15px; border-radius: 12px; border: 1px solid #eee; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
-        .input-group label { font-size: 0.95rem; font-weight: bold; color: #555; display: flex; align-items: center; }
-        input[type="number"] { width: 70px; padding: 8px; border: 2px solid #ddd; border-radius: 10px; text-align: center; font-size: 1.2rem; font-weight: bold; color: var(--secondary); outline: none; transition: 0.3s; }
-        input[type="number"]:focus { border-color: var(--secondary); box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2); }
-
-        .submit-btn {
-            width: 100%; background: linear-gradient(45deg, #FF512F, #DD2476); color: white; border: none; padding: 20px; border-radius: 20px;
-            font-size: 1.4rem; font-weight: 800; cursor: pointer; box-shadow: 0 10px 20px rgba(221, 36, 118, 0.3); margin-top: 15px;
-            transition: transform 0.2s;
+        .settings-input-group { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; align-items: center; }
+        .settings-input-group input.opt-name { flex: 2; padding: 10px; border: 1px solid #dfe6e9; border-radius: 8px; min-width: 150px; }
+        .settings-input-group input.opt-memo { flex: 1.5; padding: 10px; border: 1px solid #dfe6e9; border-radius: 8px; background: #fdfdfd; min-width: 100px; }
+        
+        .settings-list { list-style: none; padding: 0; margin: 0; }
+        .settings-list li { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 10px 12px; background: #f1f2f6; border-radius: 8px; 
+            margin-bottom: 8px; font-weight: bold; border-left: 4px solid #b2bec3; 
+            flex-wrap: nowrap; gap: 10px; overflow: hidden;
         }
-        .submit-btn:active { transform: scale(0.95); }
+        .settings-list li > div:first-child { display: flex; align-items: center; gap: 8px; flex-grow: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+        .settings-list li > div:last-child { display: flex; gap: 5px; flex-shrink: 0; }
+        .settings-list button { background: #ff7675; color: white; border: none; border-radius: 6px; padding: 6px 10px; cursor: pointer; font-weight: bold; transition: 0.2s; font-size: 0.85rem; }
         
-        /* 底部提醒語 */
-        .footer-note {
-            text-align: center; margin-top: 25px; padding: 20px;
-            background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(5px);
-            border-radius: 15px; color: #444; font-size: 0.9rem; line-height: 1.6;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05); font-weight: 600;
-            border: 1px solid rgba(255,255,255,0.5);
-        }
-        .footer-note .icon { font-size: 1.4rem; display: block; margin-bottom: 8px; animation: heartbeat 1.5s infinite; }
-        @keyframes heartbeat { 0% { transform: scale(1); } 25% { transform: scale(1.2); } 50% { transform: scale(1); } 75% { transform: scale(1.2); } 100% { transform: scale(1); } }
+        .edit-inline-row { display: flex; gap: 8px; width: 100%; align-items: center; flex-wrap: wrap; }
+        .edit-inline-row input { padding: 8px; }
 
-        /* 底部 HUD */
-        .floating-hud {
-            position: fixed; bottom: 0; left: 0; width: 100%; height: 100px;
-            background: var(--hud-bg); backdrop-filter: blur(15px);
-            border-top: 1px solid rgba(255,255,255,0.8); box-shadow: 0 -10px 30px rgba(0,0,0,0.1);
-            display: flex; align-items: center; justify-content: space-between; padding: 0 25px; box-sizing: border-box; z-index: 1000;
-            padding-bottom: env(safe-area-inset-bottom);
-            border-radius: 30px 30px 0 0; /* 圓角頂部 */
-        }
-        .hud-pokemon { position: relative; width: 90px; height: 90px; margin-top: -40px; }
-        .hud-pokemon img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.2)); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .hud-pokemon img:active { transform: scale(1.2) rotate(10deg); }
+        .btn-status { background: #00b894 !important; }
+        .btn-edit { background: #74b9ff !important; }
         
-        .hud-info { flex: 1; padding: 0 20px; display: flex; flex-direction: column; justify-content: center; }
-        .hud-stage-name { font-size: 0.9rem; font-weight: bold; color: var(--dark); margin-bottom: 6px; }
-        
-        /* 能量條動畫 (斜紋) */
-        .hud-progress-bg { width: 100%; height: 14px; background: #e0e0e0; border-radius: 10px; overflow: hidden; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); }
-        .hud-progress-bar { 
-            height: 100%; width: 0%; 
-            background: linear-gradient(45deg, #FDC830 25%, #F37335 25%, #F37335 50%, #FDC830 50%, #FDC830 75%, #F37335 75%, #F37335 100%);
-            background-size: 20px 20px;
-            transition: width 0.5s ease; 
-            animation: barberpole 1s linear infinite;
-        }
-        @keyframes barberpole { from { background-position: 0 0; } to { background-position: 20px 20px; } }
+        .finish-hint { color: var(--success); font-weight: bold; font-size: 0.85rem; margin-left: 10px; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
 
-        .hud-score { text-align: right; min-width: 80px; }
-        .hud-score-num { font-size: 2.2rem; font-weight: 900; color: var(--secondary); line-height: 1; text-shadow: 1px 1px 0px #fff; }
-        .hud-score-label { font-size: 0.75rem; color: #888; font-weight: bold; margin-top: 2px; }
+        .goal-item { display: flex; align-items: center; gap: 10px; padding: 10px; background: #fff; border-radius: 10px; margin-bottom: 8px; border: 1px solid #dfe6e9; border-left: 5px solid #00b894; }
+        .goal-item.done span { text-decoration: line-through; color: #b2bec3; }
+        .goal-item span { font-weight: bold; font-size: 1.05rem; flex-grow: 1; }
 
-        /* 特效 CSS 區 (沿用 7.7) */
-        @keyframes evolve-flash { 0% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(1.4) rotate(360deg); filter: brightness(2) drop-shadow(0 0 20px gold); } 100% { transform: scale(1); filter: brightness(1); } }
-        .evolving img { animation: evolve-flash 1.2s ease-out; }
-        @keyframes shake-pulse { 0% { transform: scale(1) rotate(0deg); } 25% { transform: scale(1.1) rotate(-3deg); } 50% { transform: scale(1) rotate(3deg); } 75% { transform: scale(1.1) rotate(-3deg); } 100% { transform: scale(1) rotate(0deg); } }
-        
-        .lightning-container { position: absolute; top: 50%; left: 50%; width: 100%; height: 100%; transform: translate(-50%, -50%); pointer-events: none; opacity: 0; z-index: 10; }
-        .lightning-bolt { position: absolute; top: 50%; left: 50%; width: 120px; height: 35px; clip-path: polygon(0% 45%, 15% 10%, 25% 45%, 40% 15%, 60% 50%, 80% 20%, 100% 50%, 80% 80%, 60% 50%, 40% 85%, 25% 55%, 15% 90%, 0% 55%); background: linear-gradient(90deg, #fff 10%, #ffeb3b 50%, #ff9800 100%); transform-origin: center left; opacity: 0; filter: drop-shadow(0 0 8px rgba(255, 235, 59, 0.8)); }
-        .bolt-1 { transform: translate(-50%, -50%) rotate(-135deg); } .bolt-2 { transform: translate(-50%, -50%) rotate(-45deg); } .bolt-3 { transform: translate(-50%, -50%) rotate(135deg); } .bolt-4 { transform: translate(-50%, -50%) rotate(45deg); }
-        @keyframes shoot-beam { 0% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--rot)) scaleX(0.1); } 10% { opacity: 1; } 40% { opacity: 1; transform: translate(-50%, -50%) rotate(var(--rot)) translate(60px, 0) scaleX(1.3); } 100% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--rot)) translate(90px, 0) scaleX(1.6); } }
-        
-        .lightning-mode img { animation: shake-pulse 0.3s infinite; filter: drop-shadow(0 0 15px #ffeb3b); }
-        .lightning-mode .lightning-container { opacity: 1; }
-        .lightning-mode .bolt-1 { --rot: -135deg; animation: shoot-beam 0.6s infinite; }
-        .lightning-mode .bolt-2 { --rot: -45deg; animation: shoot-beam 0.6s infinite 0.15s; }
-        .lightning-mode .bolt-3 { --rot: 135deg; animation: shoot-beam 0.6s infinite 0.3s; }
-        .lightning-mode .bolt-4 { --rot: 45deg; animation: shoot-beam 0.6s infinite 0.45s; }
-
+        input.proj-val-input::placeholder { color: #a29bfe; font-weight: normal; font-size: 0.85rem; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="header-section">
-            <div class="app-title">⚡ 睿晨能量進化研究所</div>
-            <div class="daily-quote-box">
-                <div class="quote-cn" id="quote-cn">載入今日智慧...</div>
-                <div class="quote-en" id="quote-en">Loading...</div>
-            </div>
-        </div>
-
-        <div class="content-area">
-            
-            <div class="card">
-                <div class="card-header">
-                    <span>🌿 棲息地日常</span>
-                    <span class="points-tag">+5 EP</span>
-                </div>
-                <div class="grid">
-                    <button class="btn" onclick="toggleBtn(this, 5)"><span>💤</span>午休充能</button>
-                    <button class="btn" onclick="toggleBtn(this, 5)"><span>🛡️</span>身體守護</button>
-                    <button class="btn" onclick="toggleBtn(this, 5)"><span>💪</span>體能訓練</button>
-                    <button class="btn" onclick="toggleBtn(this, 5)"><span>🌍</span>英語進化</button>
-                    <button class="btn" onclick="toggleBtn(this, 5)"><span>🎹</span>鋼琴演奏</button>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <span>📖 學科進化力</span>
-                    <span class="points-tag">+5 EP</span>
-                </div>
-                <div class="grid">
-                    <button class="btn" onclick="toggleBtn(this, 5)"><span>🌟</span>亮眼科目</button>
-                    <button class="btn" onclick="toggleBtn(this, 5)"><span>📝</span>作業日誌</button>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <span>🧠 情緒氣象與煞車</span>
-                    <span class="points-tag">核心獎勵</span>
-                </div>
-                <div class="weather-row">
-                    <div class="w-icon" onclick="selectWeather(this)">☀️</div>
-                    <div class="w-icon" onclick="selectWeather(this)">☁️</div>
-                    <div class="w-icon" onclick="selectWeather(this)">⛈️</div>
-                    <div class="w-icon" onclick="selectWeather(this)">❄️</div>
-                    <div class="w-icon" onclick="selectWeather(this)">🌋</div>
-                </div>
-                <div class="brake-group">
-                    <button class="brake-btn" onclick="selectBrake(this, 15, '')">
-                        <span class="icon">🛑</span> 完美煞車 <span class="desc">+15 EP</span>
-                    </button>
-                    <button class="brake-btn" onclick="selectBrake(this, 10, 'warn')">
-                        <span class="icon">⚠️</span> 緩慢減速 <span class="desc">+10 EP</span>
-                    </button>
-                    <button class="brake-btn" onclick="selectBrake(this, 0, 'fail')">
-                        <span class="icon">🏎️</span> 煞車失靈 <span class="desc" style="color:#d35400;">分享狀況可+2 EP</span>
-                    </button>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header" style="color:#6a1b9a;">
-                    <span style="display:flex; align-items:center;">💡 誠實偵探加成</span>
-                    <span class="points-tag" style="background:#f3e5f5; color:#6a1b9a;">+2 EP</span>
-                </div>
-                <label class="honesty-toggle">
-                    <div style="font-weight:bold; color:#555; font-size:0.9rem;">表現不佳但願意誠實分享</div>
-                    <div class="switch">
-                        <input type="checkbox" id="honesty-check" onchange="calc()">
-                        <span class="slider"></span>
-                    </div>
-                </label>
-            </div>
-
-            <div class="card">
-                <div class="card-header" style="color:#f57f17;">
-                    <span>🏆 榮譽里程碑</span>
-                    <span class="points-tag" style="background:#fffde7; color:#f57f17;">大獎區</span>
-                </div>
-                <div class="input-group">
-                    <label><span>🔬</span>&nbsp;科學家發現 (1-10)</label>
-                    <input type="number" id="m1" placeholder="0" oninput="calc()">
-                </div>
-                <div class="input-group">
-                    <label><span>⚔️</span>&nbsp;挑戰賽解鎖 (10-50)</label>
-                    <input type="number" id="m2" placeholder="0" oninput="calc()">
-                </div>
-                <div class="input-group">
-                    <label><span>💎</span>&nbsp;段考大躍進 (50-100)</label>
-                    <input type="number" id="m3" placeholder="0" oninput="calc()">
-                </div>
-                <div class="input-group">
-                    <label><span>🏅</span>&nbsp;學期榮譽殿堂 (100-200)</label>
-                    <input type="number" id="m4" placeholder="0" oninput="calc()">
-                </div>
-            </div>
-
-            <button class="submit-btn" onclick="finish()">
-                傳送進化數據 🚀
-            </button>
-            
-            <div class="footer-note">
-                <span class="icon">💖</span>
-                <span id="parent-note">載入給爸媽的提醒...</span>
-            </div>
-        </div>
+<nav class="tab-nav">
+    <div class="ep-nav-item">
+        <span style="font-size:0.85rem; font-weight:bold; color:#636e72;">總EP</span>
+        <span id="epScore" class="ep-nav-score">0</span>
     </div>
+    <div class="tab-btn active" onclick="switchTab('view-main', this)">🏠 每日主控台</div>
+    <div class="tab-btn" onclick="switchTab('view-calendar', this)">🗺️ 實驗導航圖</div>
+    <div class="tab-btn" onclick="switchTab('view-settings', this)">⚙️ 系統設定</div>
+</nav>
 
-    <div class="floating-hud">
-        <div class="hud-pokemon">
-            <div class="lightning-container">
-                <div class="lightning-bolt bolt-1"></div>
-                <div class="lightning-bolt bolt-2"></div>
-                <div class="lightning-bolt bolt-3"></div>
-                <div class="lightning-bolt bolt-4"></div>
-            </div>
-            <img id="pk-img" src="https://assets.pokemon.com/assets/cms2/img/pokedex/full/172.png" alt="Pokemon">
+<div class="main-wrapper">
+    <div id="view-main" class="container">
+        <div class="header-panel">
+            <div class="quote-box"><span id="quoteText" class="fade-text">載入雙語座右銘...</span></div>
         </div>
-        <div class="hud-info">
-            <div class="hud-stage-name" id="stage-name">Lv.1 皮丘</div>
-            <div class="hud-progress-bg">
-                <div class="hud-progress-bar" id="hp-fill"></div>
-            </div>
-        </div>
-        <div class="hud-score">
-            <div class="hud-score-num" id="total-ep">0</div>
-            <div class="hud-score-label">EP 能量</div>
-        </div>
-    </div>
 
-    <script>
-        let taskPoints = 0;
-        let brakePoints = 0;
-        let lastStageIndex = 0;
+        <div class="date-navigator">
+            <button class="tab-btn" style="padding:8px 15px;" onclick="navigateDate(-1)">◀ 前一天</button>
+            <div style="text-align:center;">
+                <h2 class="current-date-title" id="display-date">115年7月1日</h2>
+                <button class="tab-btn" style="font-size:0.8rem; padding:5px 12px; margin-top:5px; background:#ffeaa7; color:#d35400;" onclick="copyYesterday()">📋 複製昨日計畫</button>
+            </div>
+            <button class="tab-btn" style="padding:8px 15px;" onclick="navigateDate(1)">後一天 ▶</button>
+        </div>
+
+        <div class="time-config">
+            <div class="time-capsule" style="background:var(--morning-bg); color:var(--morning-text);">
+                <span>🌅 上午</span>
+                <div class="time-inputs-row"><input type="number" id="t_m_h" min="0" oninput="saveAndCalculate()">:<input type="number" id="t_m_m" min="0" oninput="saveAndCalculate()"></div>
+            </div>
+            <div class="time-capsule" style="background:var(--afternoon-bg); color:white;">
+                <span>☀️ 下午</span>
+                <div class="time-inputs-row"><input type="number" id="t_a_h" min="0" oninput="saveAndCalculate()">:<input type="number" id="t_a_m" min="0" oninput="saveAndCalculate()"></div>
+            </div>
+            <div class="time-capsule" style="background:var(--evening-bg); color:white;">
+                <span>🌙 晚上</span>
+                <div class="time-inputs-row"><input type="number" id="t_e_h" min="0" oninput="saveAndCalculate()">:<input type="number" id="t_e_m" min="0" oninput="saveAndCalculate()"></div>
+            </div>
+        </div>
+
+        <div class="monitor-panel">
+            <div class="total-time-text" id="totalTimeText">等待輸入時間資源...</div>
+            <div class="bar-container">
+                <div class="bar-tasks" id="taskBar"></div>
+                <div class="bar-free" id="freeBar"></div>
+            </div>
+        </div>
         
-        const stages = [
-            { ep: 0, name: "Lv.1 皮丘", img: "https://assets.pokemon.com/assets/cms2/img/pokedex/full/172.png" },
-            { ep: 21, name: "Lv.16 皮卡丘", img: "https://assets.pokemon.com/assets/cms2/img/pokedex/full/025.png" },
-            { ep: 41, name: "Lv.32 雷丘", img: "https://assets.pokemon.com/assets/cms2/img/pokedex/full/026.png" }
-        ];
+        <button class="tab-btn" style="width:100%; margin-bottom:20px; background:var(--success); color:white;" onclick="addNewTask()">➕ 增加新實驗任務</button>
 
-        const bilingualQuotes = [
-            { cn: "毛毛蟲要變成蝴蝶，需要耐心的等待。", en: "Patience helps me grow like a butterfly." },
-            { cn: "犯錯沒關係，那只是我們還沒找到答案的線索！", en: "Mistakes are just clues to the answer." },
-            { cn: "即使是大樹，也是從一顆小種子開始長大的。", en: "Big trees start from small seeds." },
-            { cn: "皮卡丘也是透過一次次戰鬥才變強的喔！", en: "Practice makes me stronger every day." },
-            { cn: "像恐龍一樣強壯，也要像偵探一樣細心。", en: "Be strong and be curious." },
-            { cn: "深呼吸，就像是給大腦踩一下煞車。", en: "Take a deep breath to calm down." },
-            { cn: "每一次的嘗試，都是為了進化做準備。", en: "Trying new things helps me evolve." },
-            { cn: "勇敢不是不害怕，而是害怕了還願意去嘗試。", en: "Being brave means trying even when scared." },
-            { cn: "觀察一隻小蟲子，也能發現大世界的祕密。", en: "Look closely, nature is full of secrets." },
-            { cn: "今天的努力，會變成明天的超能力！", en: "My effort today is my superpower tomorrow." },
-            { cn: "誠實面對自己，比考 100 分更帥氣。", en: "Being honest is better than being perfect." },
-            { cn: "你的大腦就像肌肉，越用會越強壯喔！", en: "My brain gets stronger when I think hard." },
-            { cn: "慢慢來沒關係，烏龜最後也爬到了終點。", en: "Slow and steady wins the race." },
-            { cn: "你的創意是全世界獨一無二的寶藏。", en: "My ideas are special and unique." },
-            { cn: "練習雖然有點無聊，但成果會像音樂一樣好聽。", en: "Practice creates beautiful results." },
-            { cn: "失敗了？沒關係，那是發現了「行不通的方法」。", en: "Failure is just part of learning." },
-            { cn: "大偵探睿晨，今天發現了什麼新線索嗎？", en: "Stay curious like a detective today!" },
-            { cn: "雨過天晴後的彩虹最美麗，心情也是一樣。", en: "Rainbows come after the rain." },
-            { cn: "團結力量大，就像螞蟻搬家一樣。", en: "Teamwork makes us stronger." },
-            { cn: "休息是為了走更長遠的路，別忘了充電。", en: "Resting gives me power to go further." },
-            { cn: "科學家最強的武器是「好奇心」。", en: "Curiosity is a scientist's best tool." },
-            { cn: "爸媽永遠是你最強的後盾隊友。", en: "My family is my best team." },
-            { cn: "心情不好就像烏雲，等一下太陽就會出來了。", en: "Bad moods pass like clouds." },
-            { cn: "寫下來，能讓你的觀察更清楚。", en: "Writing helps me think clearly." },
-            { cn: "保護自己，就像獅子保護領地一樣重要。", en: "I can protect myself like a lion." },
-            { cn: "像水一樣，遇到石頭轉個彎繼續流動。", en: "Be flexible like water." },
-            { cn: "解決問題的方法，通常藏在細節裡。", en: "Answers are hidden in the details." },
-            { cn: "換個角度看世界，會有不一樣的發現喔！", en: "Look at the world in a new way." },
-            { cn: "最棒的競爭對手，是昨天的自己。", en: "I am better than I was yesterday." },
-            { cn: "每一步腳印，都代表你正在往前進。", en: "Every step is progress." }
-        ];
+        <div id="missionContainer">
+            <div class="period-section section-1"><div class="section-title-period" style="color:var(--morning-text);"><div>🌅 上午實驗區</div><span id="rem-1" class="period-rem"></span></div><div id="list-1" class="grid-list"></div></div>
+            <div class="period-section section-2"><div class="section-title-period" style="color:var(--afternoon-text);"><div>☀️ 下午實驗區</div><span id="rem-2" class="period-rem"></span></div><div id="list-2" class="grid-list"></div></div>
+            <div class="period-section section-3"><div class="section-title-period" style="color:var(--evening-text);"><div>🌙 晚上實驗區</div><span id="rem-3" class="period-rem"></span></div><div id="list-3" class="grid-list"></div></div>
+        </div>
+        
+        <div class="section-title" style="margin-top: 30px; color:#d35400; font-weight:bold; font-size:1.2rem;">🎁 能量兌換站</div>
+        <div id="exchangeContainer" class="grid-list"></div>
+        <button class="tab-btn" style="background:#e17055; color:white; font-size:0.9rem;" onclick="addNewExchange()">➕ 增加兌換項目</button>
 
-        const parentingQuotes = [
-            "分數只是開啟對話的鑰匙，陪伴與傾聽才是真正的獎勵。",
-            "看見努力的過程，比完美的結果更重要。我們是親密隊友！",
-            "擁抱他的進步，也接納他的卡關。誠實面對就是最強的進化。",
-            "看見過程・肯定努力・接納情緒・享受進化",
-            "請記得：先連結感情，再糾正行為。愛是進化的最大動力。"
-        ];
+        <div style="margin-top: 30px; margin-bottom: 20px;">
+            <textarea id="daily-note-input" placeholder="今天有什麼特別的發現嗎？ (例如：今天去水族館超開心)" style="width: 100%; box-sizing: border-box; min-height: 60px; border: 2px dashed #ffeaa7; border-radius: 12px; padding: 10px; resize: vertical;" oninput="saveDOMToDay()"></textarea>
+        </div>
+    </div>
 
-        function getDailyContent() {
-            const today = new Date().toDateString();
-            let hash = 0;
-            for (let i = 0; i < today.length; i++) {
-                hash = today.charCodeAt(i) + ((hash << 5) - hash);
+    <div id="view-calendar" class="container" style="display: none;">
+        <div style="background:#f0fff4; padding:20px; border-radius:20px; border:2px dashed var(--success); margin-bottom:25px;">
+            <h2 style="color:#00b894; margin-top:0; border-bottom:2px dashed #55efc4; padding-bottom:8px;">🌟 我的北極星目標</h2>
+            <div class="settings-input-group">
+                <input type="text" id="new-goal-input" style="flex:1" placeholder="輸入你想在暑假達成的大目標 (如：學會自由式)...">
+                <button class="tab-btn" style="background:#00b894; color:white; padding:8px 15px;" onclick="addGoal()">新增目標</button>
+            </div>
+            <div id="goals-list"></div>
+        </div>
+
+        <h2 style="text-align:center; color:var(--primary); margin-bottom:10px;">🗺️ 實驗行事曆</h2>
+        <div style="display:flex; justify-content:center; gap:20px; font-size:0.95rem; font-weight:bold; color:#636e72; margin-bottom: 20px; flex-wrap:wrap; background:#fff; padding:10px; border-radius:10px; border:1px solid #eee;">
+            <span style="display:flex; align-items:center; gap:6px;"><div style="width:16px; height:16px; border-radius:4px; background:#fff; border:2px solid #f1f2f6;"></div> 未排程</span>
+            <span style="display:flex; align-items:center; gap:6px;"><div style="width:16px; height:16px; border-radius:4px; background:#e9f5ff; border:2px solid #74b9ff;"></div> 藍：已排程</span>
+            <span style="display:flex; align-items:center; gap:6px;"><div style="width:16px; height:16px; border-radius:4px; background:#e8f8f5; border:2px solid #00cec9;"></div> 綠：任務完成/出遊紀錄！</span>
+        </div>
+        
+        <div id="calendar-render-area"></div>
+
+        <h2 style="color:#0984e3; margin-top:35px; border-bottom:2px solid #eee; padding-bottom:5px; font-size:1.3rem;">📈 進行中專案看板</h2>
+        <div id="project-dashboard" class="project-grid"></div>
+        
+        <h2 style="color:#f39c12; margin-top:35px; border-bottom:2px solid #eee; padding-bottom:5px; font-size:1.3rem;">🏆 榮譽殿堂</h2>
+        <div id="fame-dashboard" class="project-grid"></div>
+    </div>
+
+    <div id="view-settings" class="container" style="display: none;">
+        <div style="display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 20px;">
+            <button class="tab-btn" style="background:#2d3436; color:#dfe6e9; border:1px solid #636e72; padding:6px 12px; font-size:0.85rem;" onclick="exportData()">💾 匯出</button>
+            <label class="tab-btn" style="background:#2d3436; color:#dfe6e9; border:1px solid #636e72; padding:6px 12px; font-size:0.85rem; cursor:pointer; margin:0;">
+                📂 還原<input type="file" id="import-file" style="display:none;" accept=".json" onclick="if(!confirm('⚠️ 即將開啟檔案選擇器。載入備份將覆蓋現有資料，確定要繼續嗎？')) return false;" onchange="importData(event)">
+            </label>
+        </div>
+
+        <h2 style="color:#0984e3; border-bottom:2px solid #eee; padding-bottom:10px;">📅 全域期程總管</h2>
+        <div class="settings-date-range">
+            全局假期開始：<input type="date" id="proj-start-date"> 
+            結束：<input type="date" id="proj-end-date"> 
+            <button class="tab-btn" style="background:#0984e3; color:white; padding:6px 15px;" onclick="updateProjectRange()">更新全局</button>
+        </div>
+        
+        <div style="text-align: center; margin: 30px 0 20px 0;">
+            <h2 style="display: inline-block; color: #2d3436; border-bottom: 3px solid #0984e3; padding-bottom: 5px; margin: 0; letter-spacing: 2px;">🎯 專案總管</h2>
+        </div>
+        <div class="domain-setting-block" style="border: 2px dashed #0984e3; background: #f4fbff;">
+            <div class="settings-input-group">
+                <input type="text" id="new-proj-name" class="opt-name" placeholder="專案名稱 (例:閱讀哈利波特)">
+                <select id="new-proj-domain" class="settings-type-select" style="flex:1;">
+                    <option value="語文/閱讀">語文/閱讀</option><option value="數學/邏輯">數學/邏輯</option><option value="社會/人文">社會/人文</option>
+                    <option value="自然/科技">自然/科技</option><option value="藝術">藝術</option><option value="健康/體育">健康/體育</option><option value="綜合">綜合</option>
+                </select>
+                <select id="new-proj-type" class="settings-type-select" style="flex:1;">
+                    <option value="指定">指定</option><option value="自主" selected>自主</option>
+                </select>
+            </div>
+            <div class="settings-input-group" style="background:#fff; padding:10px; border-radius:8px; border:1px solid #eee;">
+                起算日期：<input type="date" id="new-proj-start" onchange="previewProjectCalc()">
+                執行天數：<input type="number" id="new-proj-days" style="width:65px; text-align:center;" min="1" oninput="previewProjectCalc()">
+                總目標量：<input type="number" id="new-proj-goal" style="width:75px; text-align:center;" min="1" oninput="previewProjectCalc()">
+                單位：<input type="text" id="new-proj-unit" style="width:55px; text-align:center;" placeholder="頁">
+                單次EP：<input type="number" id="new-proj-ep" style="width:50px; text-align:center;" value="5" min="1">
+                
+                <button id="btn-submit-proj" class="tab-btn" style="background:#0984e3; color:white; padding:6px 15px; margin-left:auto;" onclick="submitProjectForm()">➕ 新增</button>
+                <button id="btn-cancel-proj" class="tab-btn" style="background:#b2bec3; color:white; padding:6px 15px; display:none;" onclick="clearProjectForm()">❌ 取消</button>
+            </div>
+            
+            <div id="proj-calc-preview" style="font-size:0.95rem; color:var(--success); font-weight:bold; margin-bottom:15px; text-align:center; background:#e8f8f5; padding:8px; border-radius:8px;">
+                請輸入數據進行即時試算...
+            </div>
+
+            <ul class="settings-list" id="project-list"></ul>
+        </div>
+        
+        <div style="text-align: center; margin: 30px 0 20px 0;">
+            <h2 style="display: inline-block; color: #2d3436; border-bottom: 3px solid #00cec9; padding-bottom: 5px; margin: 0; letter-spacing: 2px;">📝 領域內容設定</h2>
+        </div>
+        <div id="settings-container"></div>
+    </div>
+</div>
+
+<script>
+    function getLocalISODate(d) {
+        return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Taipei', year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
+    }
+
+    function generateUUID() {
+        return crypto.randomUUID ? crypto.randomUUID() : 'opt-' + Math.random().toString(36).substr(2, 9);
+    }
+
+    function escapeHTML(str) {
+        if (str === null || str === undefined) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    let appData = JSON.parse(localStorage.getItem('holidayLabData_v16.6')) || {
+        ep: 0, startDate: "2026-07-01", endDate: "2026-08-30",
+        goals: [], projects: [], 
+        domainOptions: {
+            "語文/閱讀": [{type:"指定", name:"閱讀第1章", memo:"", hidden:false, ep: 5}],
+            "數學/邏輯": [{type:"指定", name:"完成數學習作", memo:"", hidden:false, ep: 5}],
+            "社會/人文": [{type:"自主", name:"查閱歷史地圖", memo:"", hidden:false, ep: 5}],
+            "自然/科技": [{type:"指定", name:"自然觀察日記", memo:"", hidden:false, ep: 5}],
+            "藝術": [{type:"自主", name:"繪畫創作", memo:"", hidden:false, ep: 5}],
+            "健康/體育": [{type:"指定", name:"跳繩", memo:"", hidden:false, ep: 5}],
+            "綜合": [{type:"指定", name:"整理房間", memo:"", hidden:false, ep: 5}]
+        },
+        days: {} 
+    };
+
+    function sortDomainOptions(domain) {
+        const typeWeight = { "指定": 1, "自主": 2, "其他": 3 };
+        appData.domainOptions[domain].sort((a, b) => {
+            let wA = typeWeight[a.type] || 99;
+            let wB = typeWeight[b.type] || 99;
+            if (wA !== wB) return wA - wB;
+            
+            let pA = (a.memo === "★專案") ? 1 : 2;
+            let pB = (b.memo === "★專案") ? 1 : 2;
+            if (pA !== pB) return pA - pB;
+            
+            return 0;
+        });
+    }
+
+    if(!appData.projects) appData.projects = [];
+    if(!appData.goals) appData.goals = [];
+    appData.projects.forEach(p => { 
+        if(!p.status) p.status = 'active'; 
+        if(p.deadline && !p.duration) {
+            let diff = new Date(p.deadline) - new Date(p.startDate);
+            p.duration = Math.max(1, Math.floor(diff / 86400000) + 1);
+        }
+        if(p.ep === undefined) p.ep = 5;
+
+        if(!p.id) {
+            p.id = generateUUID();
+            let opt = appData.domainOptions[p.domain]?.find(o => o.name === p.name && o.memo === "★專案");
+            if (opt) opt.id = p.id;
+            
+            Object.keys(appData.days).forEach(date => {
+                if (date >= p.startDate && appData.days[date].tasks) {
+                    appData.days[date].tasks.forEach(t => {
+                        if (t.progress === p.name && !t.projId) t.projId = p.id;
+                    });
+                }
+            });
+        }
+    });
+    Object.keys(appData.domainOptions).forEach(dom => {
+        appData.domainOptions[dom] = appData.domainOptions[dom].map(opt => {
+            if (typeof opt === 'string') return {id: generateUUID(), type: "指定", name: opt, memo: "", hidden:false, ep: 5};
+            if (!opt.id) opt.id = generateUUID();
+            if (!opt.type) opt.type = "指定"; 
+            if (opt.memo === "★長期專案" || opt.memo === "★長期專案") opt.memo = "★專案";
+            if (opt.hidden === undefined) opt.hidden = false;
+            if (opt.ep === undefined) opt.ep = 5;
+            return opt;
+        });
+        sortDomainOptions(dom);
+    });
+    Object.keys(appData.days).forEach(date => {
+        if(appData.days[date].tasks) {
+            appData.days[date].tasks.forEach(t => {
+                if(t.ep === undefined) t.ep = 5;
+            });
+        }
+    });
+
+    let currentDateStr = appData.startDate; 
+    let editingProjectIdx = -1;
+    let editingDomain = null;     
+    let editingOptId = null;       
+    
+    const domains = ["語文/閱讀", "數學/邏輯", "社會/人文", "自然/科技", "藝術", "健康/體育", "綜合"];
+    const predefinedTasks = ["領域", ...domains, "其他"];
+    
+    const quotes = [
+        "Focus is your superpower!\n專注驚人的超能力！", "Mistakes are just data.\n錯誤只是實驗數據。", 
+        "You are evolving every day!\n你每天都在進化中！", "Keep exploring, Scientist!\n繼續探索吧，科學家！", 
+        "Every effort counts!\n每一份努力都算數！", "Level up your brain!\n讓你的大腦升級吧！",
+        "Small steps, big results.\n小小步伐，大大成就。", "Curiosity fuels discovery.\n好奇心驅動新發現。",
+        "Challenges make you stronger.\n挑戰使你更強大。", "Today is a blank canvas.\n今天是一張全新的畫布。",
+        "Done is better than perfect.\n完成比完美更重要。", "Your attitude determines your direction.\n你的態度決定你的方向。",
+        "Be the hero of your own story.\n做自己故事裡的英雄。", "Stay curious, stay wild!\n保持好奇，保持熱血！"
+    ];
+
+    window.onload = function() { 
+        document.getElementById('proj-start-date').value = appData.startDate;
+        document.getElementById('proj-end-date').value = appData.endDate;
+        renderAll();
+        loadDayToDOM(currentDateStr);
+    };
+
+    function saveData() { 
+        try {
+            localStorage.setItem('holidayLabData_v16.6', JSON.stringify(appData)); 
+            updateEP(); 
+        } catch (e) {
+            alert("⚠️ 儲存失敗：瀏覽器儲存空間已滿或處於無痕模式，系統無法存入進度資料！");
+            console.error("LocalStorage Save Error:", e);
+        }
+    }
+
+    function syncAndRenderDomains() {
+        domains.forEach(d => sortDomainOptions(d));
+        saveData();
+        renderSettings();
+    }
+    
+    function exportData() {
+        const dataStr = JSON.stringify(appData, null, 2);
+        const blob = new Blob([dataStr], {type: "application/json"});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        let d = new Date();
+        a.download = `HolidayLab_Backup_${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        alert("✅ 備份檔案已成功匯出！請妥善保存。");
+    }
+
+    function importData(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const imported = JSON.parse(e.target.result);
+                if(imported.projects && imported.domainOptions) {
+                    appData = imported;
+                    saveData();
+                    alert("✅ 資料還原成功！系統將重新載入。");
+                    location.reload();
+                } else {
+                    alert("❌ 檔案格式不正確，還原失敗。");
+                }
+            } catch (err) {
+                alert("❌ 檔案解析失敗，請確認檔案格式是否正確。");
             }
-            hash = Math.abs(hash);
-            
-            const qIndex = hash % bilingualQuotes.length;
-            document.getElementById('quote-cn').innerText = bilingualQuotes[qIndex].cn;
-            document.getElementById('quote-en').innerText = bilingualQuotes[qIndex].en;
+            event.target.value = '';
+        };
+        reader.readAsText(file);
+    }
 
-            const pIndex = hash % parentingQuotes.length;
-            document.getElementById('parent-note').innerText = parentingQuotes[pIndex];
-        }
-        getDailyContent();
+    function renderAll() { renderSettings(); renderGoals(); renderCalendar(); updateDailyQuote(currentDateStr); updateEP(); }
+    function updateEP() { document.getElementById('epScore').innerText = appData.ep; }
 
-        function toggleBtn(btn, pts) {
-            btn.classList.toggle('active');
-            if (btn.classList.contains('active')) taskPoints += pts;
-            else taskPoints -= pts;
-            calc();
-        }
+    function switchTab(viewId, btnElement) {
+        document.getElementById('view-main').style.display = 'none';
+        document.getElementById('view-calendar').style.display = 'none';
+        document.getElementById('view-settings').style.display = 'none';
+        document.getElementById(viewId).style.display = 'block';
+        document.querySelectorAll('.tab-nav .tab-btn').forEach(btn => btn.classList.remove('active'));
+        btnElement.classList.add('active');
+        if(viewId === 'view-calendar') renderCalendar();
+    }
 
-        function selectWeather(btn) {
-            document.querySelectorAll('.w-icon').forEach(i => i.classList.remove('selected'));
-            btn.classList.add('selected');
-        }
+    function updateProjectRange() {
+        const s = document.getElementById('proj-start-date').value; const e = document.getElementById('proj-end-date').value;
+        if(s && e && s <= e) { appData.startDate = s; appData.endDate = e; saveData(); alert("全局期程更新成功！"); renderCalendar(); } 
+        else { alert("日期區間設定錯誤！"); }
+    }
 
-        function selectBrake(btn, pts, styleClass) {
-            document.querySelectorAll('.brake-btn').forEach(b => b.className = 'brake-btn'); 
-            btn.classList.add('active');
-            if (styleClass) btn.classList.add(styleClass);
-            brakePoints = pts;
-            calc();
-        }
+    function getFormattedDate(dateStr) {
+        const d = new Date(dateStr); const days = ["日", "一", "二", "三", "四", "五", "六"];
+        return `${d.getFullYear()-1911}年${d.getMonth()+1}月${d.getDate()}日 (週${days[d.getDay()]})`;
+    }
+    
+    function updateDailyQuote(dateStr) {
+        const epochDays = Math.floor(new Date(dateStr).getTime() / 86400000);
+        const qIdx = Math.abs(epochDays) % quotes.length;
+        document.getElementById('quoteText').innerText = quotes[qIdx];
+    }
 
-        function calc() {
-            let m1 = parseInt(document.getElementById('m1').value) || 0;
-            let m2 = parseInt(document.getElementById('m2').value) || 0;
-            let m3 = parseInt(document.getElementById('m3').value) || 0;
-            let m4 = parseInt(document.getElementById('m4').value) || 0;
-            let honesty = document.getElementById('honesty-check').checked ? 2 : 0;
+    function navigateDate(offset) {
+        saveDOMToDay(); 
+        let d = new Date(currentDateStr); d.setDate(d.getDate() + offset);
+        currentDateStr = getLocalISODate(d);
+        loadDayToDOM(currentDateStr);
+    }
+
+    function jumpToDate(dateStr) { 
+        saveDOMToDay(); currentDateStr = dateStr; 
+        loadDayToDOM(currentDateStr); 
+        switchTab('view-main', document.querySelector('.tab-nav .tab-btn:nth-child(2)')); 
+    }
+
+    function getTaskEP(domain, type, progressName) {
+        if (!appData.domainOptions[domain]) return 5;
+        let opt = appData.domainOptions[domain].find(o => o.name === progressName);
+        if (opt && opt.ep !== undefined) return parseInt(opt.ep);
+        return 5; 
+    }
+
+    function renderGoals() {
+        const list = document.getElementById('goals-list'); list.innerHTML = '';
+        appData.goals.forEach((g, idx) => {
+            let clz = g.done ? 'done' : ''; let chk = g.done ? 'checked' : '';
+            list.innerHTML += `
+                <div class="goal-item ${clz}">
+                    <input type="checkbox" class="check-box" onchange="toggleGoal(${idx})" ${chk} style="pointer-events:auto;">
+                    <span>${escapeHTML(g.text)}</span>
+                    <button onclick="removeGoal(${idx})" class="btn-del">×</button>
+                </div>`;
+        });
+    }
+    function addGoal() {
+        let text = document.getElementById('new-goal-input').value.trim();
+        if(text) { appData.goals.push({text: text, done: false}); saveData(); renderGoals(); document.getElementById('new-goal-input').value = ''; }
+    }
+    function removeGoal(idx) { appData.goals.splice(idx, 1); saveData(); renderGoals(); }
+    function toggleGoal(idx) { appData.goals[idx].done = !appData.goals[idx].done; saveData(); renderGoals(); }
+
+    function renderCalendar() {
+        renderDashboard(); 
+        const area = document.getElementById('calendar-render-area'); area.innerHTML = '';
+        let dStart = new Date(appData.startDate); let dEnd = new Date(appData.endDate);
+        let startMonth = new Date(dStart.getFullYear(), dStart.getMonth(), 1); let endMonth = new Date(dEnd.getFullYear(), dEnd.getMonth(), 1);
+        
+        let currentMonth = new Date(startMonth);
+        while(currentMonth <= endMonth) {
+            let y = currentMonth.getFullYear(); let m = currentMonth.getMonth();
+            let html = `<div class="calendar-month-block"><h2 class="calendar-month-title">${y-1911}年 ${m+1}月</h2><div class="calendar-grid">`;
+            ["日","一","二","三","四","五","六"].forEach(dw => html += `<div class="cal-header">${dw}</div>`);
             
-            let total = taskPoints + brakePoints + m1 + m2 + m3 + m4 + honesty;
+            let firstDay = new Date(y, m, 1).getDay(); let daysInMonth = new Date(y, m+1, 0).getDate();
+            for(let i=0; i<firstDay; i++) html += `<div class="cal-day empty"></div>`;
             
-            document.getElementById('total-ep').innerText = total;
-            
-            let percentage = Math.min((total / 60) * 100, 100);
-            document.getElementById('hp-fill').style.width = percentage + '%';
-            
-            let currentStageIndex = 0;
-            if (total >= 41) currentStageIndex = 2;
-            else if (total >= 21) currentStageIndex = 1;
-            
-            if (currentStageIndex > lastStageIndex) {
-                triggerEvolution();
+            for(let i=1; i<=daysInMonth; i++) {
+                let checkDate = `${y}-${String(m+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+                if(checkDate < appData.startDate || checkDate > appData.endDate) { html += `<div class="cal-day empty"></div>`; } 
+                else {
+                    let statusClass = "status-none"; let dayData = appData.days[checkDate];
+                    
+                    if (dayData) {
+                        let hasTasks = dayData.tasks && dayData.tasks.length > 0;
+                        let hasNote = dayData.dailyNote && dayData.dailyNote.trim() !== "";
+                        
+                        if (hasTasks) {
+                            statusClass = dayData.tasks.every(t => t.completed) ? "status-done" : "status-planned";
+                        } else if (hasNote) {
+                            statusClass = "status-done";
+                        }
+                    }
+
+                    let activeClass = (checkDate === currentDateStr) ? "active" : "";
+                    html += `<div class="cal-day ${statusClass} ${activeClass}" onclick="jumpToDate('${checkDate}')">${i}</div>`;
+                }
             }
-            lastStageIndex = currentStageIndex;
-            
-            let stage = stages[currentStageIndex];
-            document.getElementById('stage-name').innerText = stage.name;
-            let imgEl = document.getElementById('pk-img');
-            if (imgEl.src !== stage.img) {
-                imgEl.src = stage.img;
-            }
+            html += `</div></div>`; area.innerHTML += html; currentMonth.setMonth(currentMonth.getMonth() + 1);
+        }
+    }
 
-            const hudPokemon = document.querySelector('.hud-pokemon');
-            if (total >= 60) {
-                hudPokemon.classList.add('lightning-mode');
+    function getProjectLiveStats(proj) {
+        let accTotal = 0; let accBeforeToday = 0;
+        Object.entries(appData.days).forEach(([dStr, day]) => {
+            if(dStr >= appData.startDate && dStr <= appData.endDate && day.tasks) {
+                day.tasks.forEach(t => {
+                    if(t.projId === proj.id && t.projValue && t.completed === true) {
+                        let val = parseInt(t.projValue) || 0;
+                        accTotal += val;
+                        if(dStr < currentDateStr) accBeforeToday += val;
+                    }
+                });
+            }
+        });
+        let pEnd = new Date(proj.deadline); let now = new Date(currentDateStr);
+        let remainingDays = Math.ceil((pEnd - now) / 86400000) + 1;
+        if(now > pEnd) remainingDays = 1;
+        
+        let remainingGoal = Math.max(0, proj.totalGoal - accBeforeToday);
+        let avg = (remainingDays > 0) ? (remainingGoal / remainingDays).toFixed(1) : 0;
+        return { accTotal, remainingDays: remainingDays > 0 ? remainingDays : 0, dailySuggest: avg.endsWith('.0') ? avg.slice(0, -2) : avg };
+    }
+
+    function renderDashboard() {
+        const activeArea = document.getElementById('project-dashboard'); activeArea.innerHTML = '';
+        const fameArea = document.getElementById('fame-dashboard'); fameArea.innerHTML = '';
+        
+        appData.projects.forEach(proj => {
+            const stats = getProjectLiveStats(proj);
+            let taskPct = Math.min(100, (stats.accTotal / proj.totalGoal) * 100);
+            
+            if(proj.status === 'active') {
+                let dFocus = new Date(currentDateStr);
+                let focusDateLabel = `${dFocus.getFullYear()-1911}年${dFocus.getMonth()+1}月${dFocus.getDate()}日`;
+
+                activeArea.innerHTML += `
+                <div class="project-card ${stats.accTotal >= proj.totalGoal ? 'achieved' : ''}">
+                    <div style="display:flex; justify-content:space-between; font-weight:bold; margin-bottom:8px;">
+                        <span style="font-size:1.1rem; color:var(--primary);">${escapeHTML(proj.name)}</span>
+                        <span style="color:#0984e3; font-size:1.1rem;">${stats.accTotal} / ${proj.totalGoal} ${escapeHTML(proj.unit)}</span>
+                    </div>
+                    <div style="font-size:0.8rem; color:#636e72; background:#f8fafc; padding:6px 10px; border-radius:8px; margin-bottom:12px; font-weight:bold; border:1px solid #eee;">
+                        📅 期程：${proj.startDate} ~ ${proj.deadline} (${proj.duration}天) | 🎯 總計: ${proj.totalGoal}${escapeHTML(proj.unit)} | 📈 預定每日: ${(proj.totalGoal/proj.duration).toFixed(1).replace('.0','')} ${escapeHTML(proj.unit)}
+                    </div>
+                    <div style="position:relative; height:12px; background:#dfe6e9; border-radius:6px; overflow:hidden; margin-bottom:12px;">
+                        <div style="position:absolute; top:0; left:0; height:100%; width:${taskPct}%; background:linear-gradient(90deg, #55efc4, #00b894); border-radius:6px;"></div>
+                    </div>
+                    
+                    <div style="display:flex; justify-content:space-between; font-size:0.85rem; font-weight:bold; align-items:center; flex-wrap:wrap; gap:8px;">
+                        <span style="display:flex; align-items:center;">
+                            <span style="background:#e9f5ff; color:#0984e3; padding:3px 6px; border-radius:6px; margin-right:6px; font-size:0.8rem;">📍 ${focusDateLabel} 視角</span>
+                            <span>⏳ 距離到期日：${stats.remainingDays} 天</span>
+                        </span>
+                        <span style="color:#d35400;">🎯 建議今日推進：${stats.dailySuggest} ${escapeHTML(proj.unit)}</span>
+                    </div>
+                </div>`;
             } else {
-                hudPokemon.classList.remove('lightning-mode');
+                fameArea.innerHTML += `
+                <div class="fame-card">
+                    <div><h3 class="fame-title">👑 ${escapeHTML(proj.name)}</h3><p style="margin:4px 0 0 0; color:#636e72; font-size:0.85rem; font-weight:bold;">順利挑戰完畢 ${proj.totalGoal} ${escapeHTML(proj.unit)}！</p></div>
+                    <div style="font-size:1.8rem;">🏅</div>
+                </div>`;
             }
+        });
+    }
+
+    function loadDayToDOM(dateStr) {
+        document.getElementById('display-date').innerText = getFormattedDate(dateStr);
+        updateDailyQuote(dateStr);
+
+        let dayData = appData.days[dateStr] || { times: [0,0, 0,0, 0,0], tasks: [], exchanges: [], dailyNote: "" };
+        
+        document.getElementById('daily-note-input').value = dayData.dailyNote || '';
+
+        ['t_m_h','t_m_m','t_a_h','t_a_m','t_e_h','t_e_m'].forEach((id, i) => document.getElementById(id).value = dayData.times[i] || '');
+        
+        document.getElementById('list-1').innerHTML = ''; document.getElementById('list-2').innerHTML = ''; document.getElementById('list-3').innerHTML = '';
+        document.getElementById('exchangeContainer').innerHTML = '';
+        
+        if(dayData.tasks) dayData.tasks.forEach(t => renderTaskToDOM(t)); 
+        if(dayData.exchanges) dayData.exchanges.forEach(e => renderExchangeToDOM(e));
+        calculateTime();
+    }
+
+    function saveAndCalculate() { 
+        refreshAllProjectBindings();
+        saveDOMToDay(); 
+        calculateTime(); 
+    }
+
+    function saveDOMToDay() {
+        let times = ['t_m_h','t_m_m','t_a_h','t_a_m','t_e_h','t_e_m'].map(id => parseInt(document.getElementById(id).value)||0);
+        let dailyNote = document.getElementById('daily-note-input').value.trim();
+        let tasks = [];
+        document.querySelectorAll('#missionContainer .list-item').forEach(el => {
+            let typeSel = el.querySelector('.type-select') ? el.querySelector('.type-select').value : '指定';
+            let nameSel = el.querySelector('.name-select') ? el.querySelector('.name-select').value : '領域';
+            
+            let progSel = el.querySelector('.progress-select');
+            let progTxt = el.querySelector('.progress-input-text');
+            let progInp = '';
+            if (progTxt && progTxt.style.display !== 'none') {
+                progInp = progTxt.value.trim();
+            } else if (progSel && progSel.value !== '自訂...' && progSel.value !== '') {
+                progInp = progSel.value;
+            }
+
+            let stageInp = el.querySelector('.task-stage-input');
+            let valInp = el.querySelector('.proj-val-input'); 
+            let timeInp = el.querySelector('.task-time-input');
+            let periodSel = el.querySelector('.period-select');
+            
+            let lockedEpAttr = el.getAttribute('data-locked-ep');
+            let projIdAttr = el.getAttribute('data-proj-id');
+            let savedEp;
+            if (el.classList.contains('completed')) {
+                savedEp = lockedEpAttr ? parseInt(lockedEpAttr) : 5;
+            } else {
+                savedEp = undefined; 
+            }
+
+            tasks.push({
+                checked: el.querySelector('.check-box').checked, completed: el.classList.contains('completed'), 
+                type: typeSel, name: nameSel, progress: progInp, 
+                stageMemo: stageInp ? stageInp.value : '', 
+                projValue: valInp ? (parseInt(valInp.value) || 0) : 0, 
+                time: timeInp ? (parseInt(timeInp.value) || 0) : 0,
+                period: periodSel ? periodSel.value : '1',
+                ep: savedEp,
+                projId: projIdAttr || undefined
+            });
+        });
+        let exchanges = [];
+        document.querySelectorAll('#exchangeContainer .list-item').forEach(el => {
+            exchanges.push({ 
+                checked: el.querySelector('.ex-check-box').checked, completed: el.classList.contains('completed'), 
+                name: el.querySelector('.ex-name').value, cost: parseInt(el.querySelector('.ex-cost').value) || 0 
+            });
+        });
+        appData.days[currentDateStr] = { times, tasks, exchanges, dailyNote }; saveData();
+    }
+
+    function copyYesterday() {
+        let hasTimeInput = ['t_m_h','t_m_m','t_a_h','t_a_m','t_e_h','t_e_m'].some(id => (parseInt(document.getElementById(id).value) || 0) > 0);
+        let hasTasks = document.querySelectorAll('#missionContainer .list-item').length > 0;
+        
+        if (hasTimeInput || hasTasks) {
+            if (!confirm("⚠️ 今日已填寫膠囊時間或建立實驗任務。執行複製將徹底覆寫畫面中所有設定，確定要繼續嗎？")) return;
+        }
+        
+        let d = new Date(currentDateStr); d.setDate(d.getDate() - 1); let yestStr = getLocalISODate(d);
+        if(appData.days[yestStr]) {
+            let clone = JSON.parse(JSON.stringify(appData.days[yestStr]));
+            clone.tasks.forEach(t => { t.checked = false; t.completed = false; t.projValue = 0; delete t.ep; });
+            clone.exchanges.forEach(e => { e.checked = false; e.completed = false; });
+            clone.dailyNote = ""; 
+            appData.days[currentDateStr] = clone; loadDayToDOM(currentDateStr); saveData(); alert("✅ 已成功複製前一日的排程版型！");
+        } else { alert("⚠️ 昨日尚無排程資料。"); }
+    }
+
+    function refreshAllProjectBindings() { document.querySelectorAll('#missionContainer .list-item').forEach(el => checkProjectBinding(el)); }
+
+    function checkProjectBinding(p) {
+        const projContainer = p.querySelector('.proj-container');
+        const unitLabel = p.querySelector('.proj-unit-label');
+        const valInput = p.querySelector('.proj-val-input');
+        const stageInput = p.querySelector('.task-stage-input');
+        
+        const progSel = p.querySelector('.progress-select');
+        const progTxt = p.querySelector('.progress-input-text');
+        
+        let val = '';
+        if (progTxt && progTxt.style.display !== 'none') {
+            val = progTxt.value.trim();
+        } else if (progSel && progSel.value !== '自訂...') {
+            val = progSel.value;
+        }
+        
+        let activeInput = (progTxt.style.display !== 'none') ? progTxt : progSel;
+        let hiddenInput = (progTxt.style.display !== 'none') ? progSel : progTxt;
+        
+        let projId = p.getAttribute('data-proj-id');
+        let proj = appData.projects.find(pr => pr.name === val);
+        
+        if (proj) {
+            p.setAttribute('data-proj-id', proj.id);
+        } else if (projId && val !== '') {
+            proj = appData.projects.find(pr => pr.id === projId);
+        } else {
+            p.removeAttribute('data-proj-id');
         }
 
-        function triggerEvolution() {
-            const imgEl = document.querySelector('.hud-pokemon');
-            imgEl.classList.remove('evolving');
-            void imgEl.offsetWidth; 
-            imgEl.classList.add('evolving');
+        if(proj) {
+            projContainer.style.display = 'flex';
+            if(stageInput) stageInput.style.display = 'none';
+            activeInput.style.backgroundColor = '#e8f8f5'; activeInput.style.color = '#00b894';
+            hiddenInput.style.backgroundColor = ''; hiddenInput.style.color = '';
+            
+            if (proj.status === 'completed') {
+                valInput.placeholder = `(🎉已結案)`;
+                unitLabel.innerHTML = ``;
+            } else {
+                const stats = getProjectLiveStats(proj);
+                valInput.placeholder = `建議:${stats.dailySuggest}${escapeHTML(proj.unit)}`;
+                unitLabel.innerHTML = ``;
+            }
+        } else {
+            projContainer.style.display = 'none';
+            if(stageInput) stageInput.style.display = 'inline-block';
+            activeInput.style.backgroundColor = ''; activeInput.style.color = '';
+            hiddenInput.style.backgroundColor = ''; hiddenInput.style.color = '';
+        }
+    }
+
+    function handleTaskSelectChange(selectEl) {
+        const p = selectEl.parentElement; 
+        p.removeAttribute('data-proj-id');
+        
+        const typeVal = p.querySelector('.type-select').value;
+        const domainVal = p.querySelector('.name-select').value; 
+        const progSel = p.querySelector('.progress-select');
+        const progTxt = p.querySelector('.progress-input-text');
+        
+        let optionsHtml = '<option value="">請選擇...</option>';
+        if (domainVal === '領域') {
+            domains.forEach(d => {
+                appData.domainOptions[d].filter(o => o.type === typeVal && !o.hidden).forEach(opt => {
+                    optionsHtml += `<option value="${escapeHTML(opt.name)}">${escapeHTML(opt.name)}</option>`;
+                });
+            });
+        } else if (appData.domainOptions[domainVal]) {
+            appData.domainOptions[domainVal].filter(o => o.type === typeVal && !o.hidden).forEach(opt => {
+                optionsHtml += `<option value="${escapeHTML(opt.name)}">${escapeHTML(opt.name)}</option>`;
+            });
+        }
+        optionsHtml += '<option value="自訂...">自訂...</option>';
+        progSel.innerHTML = optionsHtml;
+        
+        progSel.style.display = 'inline-block';
+        progTxt.style.display = 'none';
+        progTxt.value = '';
+        
+        saveAndCalculate();
+    }
+
+    function handleProgressSelectChange(selectEl) {
+        const p = selectEl.parentElement;
+        p.removeAttribute('data-proj-id');
+        
+        const progTxt = p.querySelector('.progress-input-text');
+        const nameSel = p.querySelector('.name-select');
+        const typeVal = p.querySelector('.type-select').value;
+
+        if (selectEl.value === '自訂...') {
+            nameSel.value = '領域';
+            selectEl.style.display = 'none';
+            progTxt.style.display = 'inline-block';
+            progTxt.focus();
+        } else if (selectEl.value !== '') {
+            let foundDomain = '領域';
+            for (let i = 0; i < domains.length; i++) {
+                let d = domains[i];
+                if (appData.domainOptions[d].some(o => o.name === selectEl.value && o.type === typeVal)) {
+                    foundDomain = d;
+                    break;
+                }
+            }
+            nameSel.value = foundDomain;
+        }
+        saveAndCalculate();
+    }
+
+    function handleProgressInputBlur(inputEl) {
+        const p = inputEl.parentElement;
+        p.removeAttribute('data-proj-id');
+        
+        if (inputEl.value.trim() === '') {
+            const progSel = p.querySelector('.progress-select');
+            inputEl.style.display = 'none';
+            inputEl.value = '';
+            progSel.style.display = 'inline-block';
+            progSel.selectedIndex = 0;
+            saveAndCalculate();
+        }
+    }
+
+    function sortTasks() {
+        const allTasks = Array.from(document.querySelectorAll('#missionContainer .list-item'));
+        allTasks.forEach(t => {
+            const period = t.querySelector('.period-select').value;
+            document.getElementById('list-' + period).appendChild(t);
+        });
+    }
+
+    function renderTaskToDOM(t) {
+        const div = document.createElement('div'); 
+        div.className = `list-item ${t.completed ? 'completed' : ''}`; 
+        
+        if(t.ep !== undefined) { div.setAttribute('data-locked-ep', t.ep); }
+        div.setAttribute('data-proj-id', t.projId || '');
+        
+        let isChecked = t.checked ? 'checked' : ''; 
+        let dIdx = domains.indexOf(t.name);
+        
+        let optionsHtml = '<option value="">請選擇...</option>';
+        let foundMatch = false;
+        
+        if (t.name === '領域') {
+            domains.forEach(d => {
+                appData.domainOptions[d].filter(o => o.type === (t.type || '指定') && !o.hidden).forEach(opt => {
+                    let selected = (t.progress === opt.name) ? 'selected' : '';
+                    if (selected) foundMatch = true;
+                    optionsHtml += `<option value="${escapeHTML(opt.name)}" ${selected}>${escapeHTML(opt.name)}</option>`;
+                });
+            });
+        } else if (dIdx !== -1 && appData.domainOptions[t.name]) {
+            appData.domainOptions[t.name].filter(o => o.type === (t.type || '指定') && !o.hidden).forEach(opt => {
+                let selected = (t.progress === opt.name) ? 'selected' : '';
+                if (selected) foundMatch = true;
+                optionsHtml += `<option value="${escapeHTML(opt.name)}" ${selected}>${escapeHTML(opt.name)}</option>`;
+            });
+        }
+        
+        optionsHtml += '<option value="自訂...">自訂...</option>';
+        let useInput = (t.progress && t.progress !== '' && !foundMatch);
+
+        div.innerHTML = `
+            <input type="checkbox" class="check-box" onchange="handleTaskCheck(this)" ${isChecked}>
+            <select class="type-select" onchange="handleTaskSelectChange(this)">
+                <option value="指定" ${t.type==='指定'?'selected':''}>指定</option><option value="自主" ${t.type==='自主'?'selected':''}>自主</option><option value="其他" ${t.type==='其他'?'selected':''}>其他</option>
+            </select>
+            <select class="name-select" onchange="handleTaskSelectChange(this)">
+                ${predefinedTasks.map(opt => `<option value="${opt}" ${t.name===opt?'selected':''}>${opt}</option>`).join('')}
+            </select>
+            
+            <select class="progress-field progress-select" style="${useInput ? 'display:none;' : ''}" onchange="handleProgressSelectChange(this)">
+                ${optionsHtml}
+            </select>
+            <input type="text" class="progress-field progress-input-text" style="${useInput ? '' : 'display:none;'}" value="${useInput ? escapeHTML(t.progress) : ''}" placeholder="自訂內容..." oninput="this.parentElement.removeAttribute('data-proj-id'); saveAndCalculate()" onblur="handleProgressInputBlur(this)">
+            
+            <input type="text" class="task-stage-input" value="${escapeHTML(t.stageMemo || '')}" placeholder="進度說明..." oninput="saveDOMToDay()">
+
+            <div class="proj-container">
+                <input type="number" class="proj-val-input" placeholder="數字" value="${t.projValue || ''}" min="0" oninput="saveAndCalculate()">
+                <span class="proj-unit-label" style="font-size:0.85rem; font-weight:bold; color:#636e72;"></span>
+            </div>
+            <input type="number" class="task-time-input" placeholder="分" value="${t.time || ''}" min="0" max="999" oninput="saveAndCalculate()">
+            
+            <select class="period-select" onchange="sortTasks(); saveAndCalculate();">
+                <option value="1" ${t.period==='1'?'selected':''}>上午</option>
+                <option value="2" ${t.period==='2'?'selected':''}>下午</option>
+                <option value="3" ${t.period==='3'?'selected':''}>晚上</option>
+            </select>
+            <button class="btn-del" onclick="if(this.parentElement.classList.contains('completed')){alert('⚠️ 已勾選完成的任務無法直接刪除，請先解除勾選以退還EP。'); return;} this.parentElement.remove(); saveAndCalculate();">×</button>
+        `;
+        document.getElementById('list-' + (t.period || 1)).appendChild(div);
+        checkProjectBinding(div); 
+    }
+
+    function addNewTask() {
+        renderTaskToDOM({ checked: false, completed: false, type: '指定', name: '領域', progress: '', stageMemo: '', projValue: 0, time: 0, period: '1', projId: undefined });
+        saveAndCalculate();
+    }
+
+    function renderExchangeToDOM(e) {
+        const div = document.createElement('div'); div.className = `list-item exchange-item ${e.completed ? 'completed' : ''}`;
+        let isChecked = e.checked ? 'checked' : '';
+        div.innerHTML = `
+            <input type="checkbox" class="ex-check-box" onchange="handleExchangeCheck(this)" ${isChecked}>
+            <input type="text" class="progress-field ex-name" placeholder="兌換項目" value="${escapeHTML(e.name || '')}" oninput="saveDOMToDay()">
+            <input type="number" class="task-time-input ex-cost" placeholder="需EP" value="${e.cost || ''}" oninput="saveDOMToDay()">
+            <button class="btn-del" onclick="if(this.parentElement.classList.contains('completed')){alert('⚠️ 已兌換的項目無法直接刪除，請先解除勾選以退還EP。'); return;} this.parentElement.remove(); saveDOMToDay();">×</button>
+        `;
+        document.getElementById('exchangeContainer').appendChild(div);
+    }
+    function addNewExchange() { renderExchangeToDOM({ checked: false, completed: false, name: '', cost: 0 }); saveDOMToDay(); }
+
+    function handleTaskCheck(chk) { 
+        const p = chk.parentElement; 
+        let typeSel = p.querySelector('.type-select').value;
+        let nameSel = p.querySelector('.name-select').value;
+        
+        let progSel = p.querySelector('.progress-select');
+        let progTxt = p.querySelector('.progress-input-text');
+        let progInp = '';
+        if (progTxt && progTxt.style.display !== 'none') {
+            progInp = progTxt.value.trim();
+        } else if (progSel && progSel.value !== '自訂...') {
+            progInp = progSel.value;
         }
 
-        function finish() {
-            let t = document.getElementById('total-ep').innerText;
-            alert("🎉 進化數據傳送成功！\n\n睿晨今天獲得了 " + t + " EP\n可兌換：" + t + " 分鐘 HAPPY 時間\n或 " + t + " 元 購物金");
-            location.reload(); 
+        let projIdAttr = p.getAttribute('data-proj-id');
+        let linkedProj = appData.projects.find(pr => pr.id === projIdAttr || pr.name === progInp);
+
+        if (linkedProj && linkedProj.status === 'completed') {
+            alert("已結案，若要修改請至「系統設定」中取消結案。");
+            chk.checked = !chk.checked; 
+            return;
         }
-    </script>
+
+        if(chk.checked) { 
+            let freshEp = getTaskEP(nameSel, typeSel, progInp);
+            p.setAttribute('data-locked-ep', freshEp);
+            p.classList.add('completed'); 
+            appData.ep += freshEp; 
+            saveAndCalculate(); 
+        } else { 
+            let lockedEp = parseInt(p.getAttribute('data-locked-ep')) || 5;
+            if (appData.ep - lockedEp < 0) {
+                alert("能量點數餘額不足！請先取消兌換項目，或持續累積點數。");
+                chk.checked = true;
+                return;
+            }
+            p.classList.remove('completed'); 
+            appData.ep -= lockedEp; 
+            p.removeAttribute('data-locked-ep');
+            saveAndCalculate(); 
+        } 
+    }
+
+    function handleExchangeCheck(chk) { 
+        const p = chk.parentElement; let cost = parseInt(p.querySelector('.ex-cost').value) || 0; 
+        if(chk.checked) { 
+            if(cost > appData.ep) { alert("能量點數不足喔！繼續實驗累積吧！"); chk.checked = false; return; } 
+            appData.ep -= cost; p.classList.add('completed'); 
+        } else { appData.ep += cost; p.classList.remove('completed'); } 
+        saveDOMToDay();
+    }
+
+    function calculateTime() {
+        const hInps = [document.getElementById('t_m_h'), document.getElementById('t_a_h'), document.getElementById('t_e_h')];
+        const mInps = [document.getElementById('t_m_m'), document.getElementById('t_a_m'), document.getElementById('t_e_m')];
+        let pTotal = hInps.map((h, i) => (Math.max(0, parseInt(h.value)) || 0) * 60 + (Math.max(0, parseInt(mInps[i].value)) || 0));
+        let totalMin = pTotal.reduce((a, b) => a + b, 0); let pUsed = [0, 0, 0], usedMin = 0;
+        
+        document.querySelectorAll('#missionContainer .list-item').forEach(el => {
+            let timeInp = el.querySelector('.task-time-input');
+            if(timeInp) {
+                let time = Math.max(0, parseInt(timeInp.value)) || 0; usedMin += time;
+                let pid = el.querySelector('.period-select') ? el.querySelector('.period-select').value : el.closest('.grid-list').id.split('-')[1];
+                pUsed[pid-1] += time;
+            }
+        });
+        
+        document.getElementById('totalTimeText').innerText = totalMin > 0 ? `總時間資源：${Math.floor(totalMin/60)}小時 ${totalMin%60}分` : "請輸入上方膠囊時間...";
+        let usedPct = totalMin > 0 ? Math.min(100, (usedMin / totalMin) * 100) : 0;
+        document.getElementById('taskBar').style.width = `${usedPct}%`; document.getElementById('freeBar').style.width = `${100 - usedPct}%`;
+        document.getElementById('taskBar').innerText = usedMin > 0 ? `已排程: ${usedMin}分` : '';
+        document.getElementById('freeBar').innerText = (totalMin - usedMin) > 0 ? `放空: ${totalMin - usedMin}分` : '';
+        if((totalMin - usedMin) < 0) {
+            document.getElementById('taskBar').innerText = `超時 ${Math.abs(totalMin - usedMin)} 分`;
+            document.getElementById('taskBar').style.background = "linear-gradient(135deg, #ff7675, #d63031)";
+            document.getElementById('freeBar').innerText = "";
+        } else { document.getElementById('taskBar').style.background = "linear-gradient(135deg, #74b9ff, #0984e3)"; }
+
+        for(let i=1; i<=3; i++) {
+            let rem = pTotal[i-1] - pUsed[i-1], el = document.getElementById(`rem-${i}`);
+            if(pTotal[i-1] === 0 && pUsed[i-1] === 0) { el.innerText = "未排程"; el.style.background = "#dfe6e9"; el.style.color = "#636e72"; }
+            else if (rem < 0) { el.innerText = `⚠️ 超時 ${Math.abs(rem)} 分`; el.style.background = "#ff7675"; el.style.color = "#fff"; }
+            else { el.innerText = `放空 ${rem} 分`; el.style.background = "#55efc4"; el.style.color = "#2d3436"; }
+        }
+    }
+
+    function previewProjectCalc() {
+        let goal = parseInt(document.getElementById('new-proj-goal').value) || 0;
+        let startStr = document.getElementById('new-proj-start').value;
+        let days = parseInt(document.getElementById('new-proj-days').value) || 0;
+        let pvw = document.getElementById('proj-calc-preview');
+        
+        if(goal > 0 && startStr && days > 0) {
+            let avg = (goal / days).toFixed(1);
+            pvw.innerText = `📊 試算結果：預計執行 ${days} 天，平均每日需推進 ${avg.replace('.0','')} 單位`;
+        } else { pvw.innerText = `請輸入正確的目標數量與執行天數以計算每日平均`; }
+    }
+
+    function submitProjectForm() {
+        let name = document.getElementById('new-proj-name').value.trim();
+        let domain = document.getElementById('new-proj-domain').value;
+        let type = document.getElementById('new-proj-type').value;
+        let goal = parseInt(document.getElementById('new-proj-goal').value);
+        let unit = document.getElementById('new-proj-unit').value.trim() || '頁';
+        let startDate = document.getElementById('new-proj-start').value;
+        let days = parseInt(document.getElementById('new-proj-days').value);
+        let ep = parseInt(document.getElementById('new-proj-ep').value) || 5;
+
+        if(!name || isNaN(goal) || !startDate || isNaN(days) || days <= 0 || goal <= 0) { alert("請完整填寫專案的所有欄位項目！"); return; }
+        
+        let endDate = new Date(startDate); endDate.setDate(endDate.getDate() + days - 1);
+        let deadline = getLocalISODate(endDate);
+        let projObj = { name, domain, type, totalGoal: goal, unit, startDate, deadline, duration: days, status: 'active', ep };
+
+        if(editingProjectIdx === -1) {
+            if(appData.projects.some(p => p.name === name)) { alert("這個專案名稱已經存在囉！"); return; }
+            projObj.id = generateUUID();
+            appData.projects.push(projObj);
+            appData.domainOptions[domain].push({ id: projObj.id, type, name, memo: "★專案", hidden: false, ep });
+        } else {
+            if(appData.projects.some((p, i) => p.name === name && i !== editingProjectIdx)) { alert("這個專案名稱已經存在。"); return; }
+            let oldP = appData.projects[editingProjectIdx];
+            projObj.status = oldP.status;
+            projObj.id = oldP.id;
+            
+            let oldOptIdx = appData.domainOptions[oldP.domain].findIndex(o => o.id === oldP.id || (o.name === oldP.name && o.memo === "★專案"));
+            if(oldOptIdx > -1) appData.domainOptions[oldP.domain].splice(oldOptIdx, 1);
+            appData.domainOptions[domain].push({ id: projObj.id, type, name, memo: "★專案", hidden: (oldP.status === 'completed'), ep });
+
+            appData.projects[editingProjectIdx] = projObj;
+        }
+        syncAndRenderDomains();
+        clearProjectForm(); loadDayToDOM(currentDateStr); renderCalendar();
+    }
+
+    function editProject(idx) {
+        alert("提示：修改好的名稱與設定會套用到專案本身，過去的歷史紀錄將保留原始名稱。");
+        
+        editingProjectIdx = idx; let p = appData.projects[idx];
+        
+        let nameInput = document.getElementById('new-proj-name');
+        nameInput.value = p.name;
+        if(p.status === 'completed') {
+            nameInput.disabled = true;
+            nameInput.style.backgroundColor = '#f1f2f6';
+        } else {
+            nameInput.disabled = false;
+            nameInput.style.backgroundColor = '';
+        }
+
+        document.getElementById('new-proj-domain').value = p.domain;
+        document.getElementById('new-proj-type').value = p.type;
+        document.getElementById('new-proj-goal').value = p.totalGoal;
+        document.getElementById('new-proj-unit').value = p.unit;
+        document.getElementById('new-proj-start').value = p.startDate;
+        document.getElementById('new-proj-days').value = p.duration;
+        document.getElementById('new-proj-ep').value = p.ep || 5;
+
+        document.getElementById('btn-submit-proj').innerText = "💾 儲存修改";
+        document.getElementById('btn-submit-proj').style.background = "#00b894";
+        document.getElementById('btn-cancel-proj').style.display = "inline-block";
+        previewProjectCalc();
+    }
+
+    function clearProjectForm() {
+        ['new-proj-name', 'new-proj-goal', 'new-proj-unit', 'new-proj-start', 'new-proj-days'].forEach(id => document.getElementById(id).value = '');
+        document.getElementById('new-proj-ep').value = '5';
+        
+        let nameInput = document.getElementById('new-proj-name');
+        nameInput.disabled = false;
+        nameInput.style.backgroundColor = '';
+
+        editingProjectIdx = -1;
+        document.getElementById('btn-submit-proj').innerText = "➕ 建立專案任務";
+        document.getElementById('btn-submit-proj').style.background = "#0984e3";
+        document.getElementById('btn-cancel-proj').style.display = "none";
+        document.getElementById('proj-calc-preview').innerText = '請輸入數據進行即時試算...';
+    }
+
+    function removeProject(idx) { 
+        if(confirm("確定要徹底刪除這個專案設定嗎？ (歷史紀錄將退化為一般常規內容)")) {
+            let p = appData.projects[idx];
+            let optIdx = appData.domainOptions[p.domain].findIndex(o => o.id === p.id || (o.name === p.name && o.memo === "★專案"));
+            if(optIdx > -1) appData.domainOptions[p.domain].splice(optIdx, 1);
+            appData.projects.splice(idx, 1); syncAndRenderDomains(); renderCalendar();
+        }
+    }
+
+    function toggleProjectStatus(idx) {
+        let p = appData.projects[idx];
+        if (p.status === 'active') {
+            if(confirm(`確定要將專案「${p.name}」結案嗎？結案後將送入榮譽殿堂，並自動從下拉選單隱藏。`)) {
+                p.status = 'completed';
+                let opt = appData.domainOptions[p.domain].find(o => o.id === p.id || (o.name === p.name && o.memo === "★專案"));
+                if(opt) opt.hidden = true;
+            }
+        } else {
+            p.status = 'active';
+            let opt = appData.domainOptions[p.domain].find(o => o.id === p.id || (o.name === p.name && o.memo === "★專案"));
+            if(opt) {
+                opt.hidden = false;
+            } else {
+                appData.domainOptions[p.domain].push({ id: p.id, type: p.type, name: p.name, memo: "★專案", hidden: false, ep: p.ep || 5 });
+            }
+            alert(`已成功重啟專案「${p.name}」！`);
+        }
+        syncAndRenderDomains(); renderCalendar(); loadDayToDOM(currentDateStr);
+    }
+
+    function renderSettings() {
+        renderProjects();
+        const container = document.getElementById('settings-container'); container.innerHTML = '';
+        domains.forEach((dom, dIdx) => {
+            let html = `
+            <div class="domain-setting-block">
+                <h3 class="domain-title">📌 ${dom}</h3>
+                <div class="settings-input-group">
+                    <input type="text" class="opt-name" id="add-${dom}" placeholder="輸入新的內容描述">
+                    <input type="text" class="opt-memo" id="memo-${dom}" placeholder="備註">
+                    EP：<input type="number" class="opt-ep" id="ep-${dom}" value="5" min="1" style="width:55px;">
+                    <button class="tab-btn" style="background:var(--success); color:white; padding:6px 15px;" onclick="addDomainOption('${dom}')">➕ 新增</button>
+                </div>
+                <ul class="settings-list">`;
+            
+            appData.domainOptions[dom].forEach((opt) => { 
+                if (dom === editingDomain && opt.id === editingOptId) {
+                    html += `
+                        <li style="background:#fff3cd; border-color:#f1c40f;">
+                            <div class="edit-inline-row">
+                                <select id="edit-type-${dom}-${opt.id}" class="settings-type-select">
+                                    <option value="指定" ${opt.type==='指定'?'selected':''}>指定</option>
+                                    <option value="自主" ${opt.type==='自主'?'selected':''}>自主</option>
+                                    <option value="其他" ${opt.type==='其他'?'selected':''}>其他</option>
+                                </select>
+                                <input type="text" id="edit-name-${dom}-${opt.id}" value="${escapeHTML(opt.name)}" style="flex:2;">
+                                <input type="text" id="edit-memo-${dom}-${opt.id}" value="${escapeHTML(opt.memo)}" placeholder="備註" style="flex:1.5;">
+                                <span style="font-size:0.85rem; color:#636e72; font-weight:bold;">EP:</span>
+                                <input type="number" id="edit-ep-${dom}-${opt.id}" value="${opt.ep || 5}" min="1" style="width:50px;">
+                                <div style="display:flex; gap:5px; margin-left:auto;">
+                                    <button class="btn-status" style="background:#00b894;" onclick="saveEditDomainOption('${dom}', '${opt.id}')">💾 儲存</button>
+                                    <button class="btn-del" style="background:#b2bec3; width:auto; padding:6px 10px;" onclick="cancelEditDomainOption()">❌</button>
+                                </div>
+                            </div>
+                        </li>`;
+                } else {
+                    let isProj = (opt.memo === "★專案");
+                    let memoHtml = opt.memo ? `<span style="color:#b2bec3; font-size:0.85rem; margin-left:10px;">(${escapeHTML(opt.memo)})</span>` : '';
+                    let epBadge = `<span style="background:#f1c40f; color:#fff; padding:2px 8px; border-radius:12px; font-size:0.8rem; margin-left:8px; font-weight:bold;">${opt.ep || 5} EP</span>`;
+                    let typeSelect = `<select class="settings-type-select" ${isProj ? 'disabled' : ''} onchange="changeOptionType('${dom}', '${opt.id}', this.value)"><option value="指定" ${opt.type==='指定'?'selected':''}>指定</option><option value="自主" ${opt.type==='自主'?'selected':''}>自主</option><option value="其他" ${opt.type==='其他'?'selected':''}>其他</option></select>`;
+                    let editBtn = isProj ? `<button class="btn-edit" style="background:#b2bec3; cursor:not-allowed;" onclick="alert('請至上方專案總管編輯')">🔒 鎖定</button>` : `<button class="btn-edit" onclick="startEditDomainOption('${dom}', '${opt.id}')">✏️ 編輯</button>`;
+                    let delBtn = isProj ? `<button class="btn-del" style="background:#b2bec3; cursor:not-allowed;" onclick="alert('請至上方專案總管編輯')">🔒</button>` : `<button class="btn-del" onclick="removeDomainOption('${dom}', '${opt.id}')">×</button>`;
+                    html += `<li>
+                                <div style="${opt.hidden?'opacity:0.4; text-decoration:line-through;':''}">${typeSelect} <span>${escapeHTML(opt.name)}</span> ${epBadge} ${memoHtml}</div> 
+                                <div>
+                                    <button class="btn-status" style="background:#b2bec3" onclick="toggleTaskVisibility('${dom}', '${opt.id}')">${opt.hidden?'👁️ 顯示':'🙈 隱藏'}</button>
+                                    ${editBtn}
+                                    ${delBtn}
+                                </div>
+                            </li>`; 
+                }
+            });
+            html += `</ul></div>`; container.innerHTML += html;
+        });
+    }
+
+    function toggleTaskVisibility(domain, optId) {
+        let opt = appData.domainOptions[domain].find(o => o.id === optId);
+        if(opt) opt.hidden = !opt.hidden;
+        syncAndRenderDomains();
+    }
+
+    function startEditDomainOption(domain, optId) {
+        alert("提示：修改好的內容不會更改過去已經記錄好的任務，但會套用到未來的新排程！");
+        editingDomain = domain;
+        editingOptId = optId;
+        renderSettings();
+    }
+
+    function cancelEditDomainOption() {
+        editingDomain = null;
+        editingOptId = null;
+        renderSettings();
+    }
+
+    function saveEditDomainOption(domain, optId) {
+        let newType = document.getElementById(`edit-type-${domain}-${optId}`).value;
+        let newName = document.getElementById(`edit-name-${domain}-${optId}`).value.trim();
+        let newMemo = document.getElementById(`edit-memo-${domain}-${optId}`).value.trim();
+        let newEp = parseInt(document.getElementById(`edit-ep-${domain}-${optId}`).value) || 5;
+
+        if (!newName) { alert("名稱不能為空白！"); return; }
+        if (appData.domainOptions[domain].some(o => o.name === newName && o.id !== optId)) { alert("此內容描述已存在。"); return; }
+
+        let currentOpt = appData.domainOptions[domain].find(o => o.id === optId);
+        if(currentOpt) {
+            currentOpt.type = newType;
+            currentOpt.name = newName;
+            currentOpt.memo = newMemo;
+            currentOpt.ep = newEp;
+        }
+
+        editingDomain = null;
+        editingOptId = null;
+        syncAndRenderDomains();
+    }
+
+    function renderProjects() {
+        const list = document.getElementById('project-list'); list.innerHTML = '';
+        appData.projects.forEach((p, idx) => {
+            const stats = getProjectLiveStats(p);
+            let isTargetMet = stats.accTotal >= p.totalGoal;
+            let hint = (isTargetMet && p.status === 'active') ? '<span style="background:#ff7675; color:white; padding:2px 8px; border-radius:12px; font-size:0.8rem; margin-left:8px; font-weight:bold; animation:pulse 1.5s infinite;">✨ 已完成，請結案</span>' : '';
+            let statusBtnHtml = p.status === 'active' ? `<button class="btn-status" style="background:var(--success)" onclick="toggleProjectStatus(${idx})">🏆 結案</button>` : `<button class="btn-status" style="background:#f39c12" onclick="toggleProjectStatus(${idx})">🔄 重啟</button>`;
+            
+            list.innerHTML += `
+                <li style="border-left-color:#0984e3; flex-direction:column; align-items:flex-start; margin-bottom:10px; padding:12px; background:#f8fafc; border-radius:10px;">
+                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                        <div style="${p.status==='completed'?'text-decoration:line-through; color:#b2bec3;':''}; font-weight:bold;"><span style="color:#0984e3;">[${p.type}] ${p.domain}</span> ${escapeHTML(p.name)} <span style="background:#f1c40f; color:#fff; padding:2px 8px; border-radius:12px; font-size:0.8rem; margin-left:8px;">${p.ep || 5} EP</span> ${hint}</div>
+                        <div>
+                            ${statusBtnHtml}
+                            <button class="btn-edit" onclick="editProject(${idx})">✏️ 編輯</button>
+                            <button class="btn-del" onclick="removeProject(${idx})">×</button>
+                        </div>
+                    </div>
+                    <div style="color:#636e72; font-size:0.85rem; font-weight:bold; margin-top:4px;">
+                        📅 期程：${p.startDate} ~ ${p.deadline} (${p.duration}天) | 🎯 總目標量: ${p.totalGoal} ${escapeHTML(p.unit)}
+                    </div>
+                </li>`;
+        });
+    }
+
+    function changeOptionType(domain, optId, newType) { 
+        let opt = appData.domainOptions[domain].find(o => o.id === optId);
+        if(opt) opt.type = newType; 
+        syncAndRenderDomains(); 
+    }
+    
+    function addDomainOption(domain) { 
+        const nameInput = document.getElementById('add-'+domain); 
+        const memoInput = document.getElementById('memo-'+domain);
+        const epInput = document.getElementById('ep-'+domain);
+        
+        const nameVal = nameInput.value.trim(); 
+        const memoVal = memoInput.value.trim();
+        const epVal = parseInt(epInput.value) || 5;
+
+        if(nameVal) { 
+            if(!appData.domainOptions[domain].some(o => o.name === nameVal)) { 
+                appData.domainOptions[domain].push({id: generateUUID(), type: "指定", name: nameVal, memo: memoVal, hidden: false, ep: epVal}); 
+                nameInput.value=''; memoInput.value=''; epInput.value='5';
+                syncAndRenderDomains();
+            } else { 
+                alert("這個任務項目已經存在囉！"); 
+            }
+        } 
+    }
+    
+    function removeDomainOption(domain, optId) { 
+        if(confirm("確定刪除嗎？")) { 
+            appData.domainOptions[domain] = appData.domainOptions[domain].filter(o => o.id !== optId); 
+            syncAndRenderDomains(); 
+        } 
+    }
+</script>
+
 </body>
 </html>
